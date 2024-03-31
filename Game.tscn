@@ -1,3 +1,13 @@
-[gd_scene format=3 uid="uid://b4yav2ulwuktq"]
+[gd_scene load_steps=4 format=3 uid="uid://b4yav2ulwuktq"]
+
+[ext_resource type="Script" path="res://Game.cs" id="1_bdkcw"]
+[ext_resource type="PackedScene" uid="uid://kryvcb5akei4" path="res://Map.tscn" id="2_iudul"]
+[ext_resource type="Script" path="res://Camera.cs" id="3_cpe2n"]
 
 [node name="Game" type="Node"]
+script = ExtResource("1_bdkcw")
+
+[node name="Map" parent="." instance=ExtResource("2_iudul")]
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("3_cpe2n")

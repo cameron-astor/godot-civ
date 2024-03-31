@@ -65,7 +65,7 @@ public partial class Map : Node2D
 				// Calculate pixel coordinates of hex
 				var pixelCoords = this.HexToPixel(new Vector2(q_offset, r));
 
-				AddChild(t); // Add to scene tree
+				AddChild(t); // Add hex to scene tree
 
 				t.Position += pixelCoords; // Set position based on pixel coord calculation
 				t.SetColor(this.GetRandomColor());
