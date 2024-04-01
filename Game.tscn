@@ -8,6 +8,9 @@
 script = ExtResource("1_bdkcw")
 
 [node name="Map" parent="." instance=ExtResource("2_iudul")]
+WIDTH = 106
+HEIGHT = 66
 
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("3_cpe2n")
+velocity = 20

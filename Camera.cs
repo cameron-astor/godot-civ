@@ -18,6 +18,7 @@ public partial class Camera : Camera2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		// GD.Print(Engine.GetFramesPerSecond());
 
 		// Map controls
 		if (Input.IsActionPressed("map_right"))
@@ -43,15 +44,16 @@ public partial class Camera : Camera2D
 			if (this.Zoom < new Vector2(3f, 3f)) {
 				this.Zoom += new Vector2(zoom_speed, zoom_speed);
 			}
-			GD.Print(this.Zoom);
+			// GD.Print(this.Zoom);
 		}
 		if (Input.IsActionPressed("map_zoom_out"))
 		{
-			if (this.Zoom > new Vector2(0.5f, 0.5f)) {
+			if (this.Zoom > new Vector2(0.1f, 0.1f)) {
 				this.Zoom -= new Vector2(zoom_speed, zoom_speed);
 			}
-			GD.Print(this.Zoom);
+			// GD.Print(this.Zoom);
 		}
+		
 	}
 
 }
