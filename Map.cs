@@ -2,39 +2,52 @@ using Godot;
 using System;
 using Godot.Collections;
 using System.Linq;
-using System.Diagnostics;
+
+
 
 public partial class Map : Node2D
 {
 
 	// FLAGS
-	private bool MAP_GENERATED = false;
+	public bool MAP_GENERATED = false;
 
 	// Packed scenes
 	private PackedScene hexTileScene;
+	private PackedScene mapChunkScene;
+
+	// Camera
+	private Camera2D camera;
 
 	// We are storing the map with axial coordinates (cube
 	// coordinate s may be derived: s = -q-r).
-	private Tile[,] map;
+	public Tile[,] map;
 	private int arrayOffset;
+
+	private MapChunk[] chunks;
 
 	// Dimensions of the map (in tiles)
 	[Export]
 	private int WIDTH = 7;
 	[Export]
 	private int HEIGHT = 7;
+	[Export]
+	private int CHUNK_SIZE = 32;
 
 	// Radius of the outer circle of the hexagon tiles.
 	// Decide once for the game and should not change.
-	private const int TILE_SIZE = 144;
+	[Export]
+	private const int TILE_SIZE = 128;
 	// base hexagon vertices for this tile size
-	private Vector2[] baseHexVertices;
+	public Vector2[] baseHexVertices;
+
+
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		// Load packed scene
 		this.hexTileScene = ResourceLoader.Load<PackedScene>("res://Tile.tscn");
+		this.mapChunkScene = ResourceLoader.Load<PackedScene>("res://MapChunk.tscn");
 
 		this.arrayOffset = (int) Math.Floor((HEIGHT - 1)/2f); // Calculate max offset
 
@@ -44,14 +57,25 @@ public partial class Map : Node2D
 		// Calculate hexagon vertices for this tile size
 		baseHexVertices = CalculateHexagonVertices(TILE_SIZE);
 
+		this.camera = GetNode<Camera2D>("../Camera");
+
 		PopulateMap();
-		
+		GenerateChunks();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (Input.IsActionJustPressed("map_rotate_left")) {
+			GD.Print("redraw");
+			this.QueueRedraw();
+		}
 
+		if (Input.IsActionJustPressed("left_click")) {
+			var coords = GetGlobalMousePosition();
+			GD.Print(coords);
+			GD.Print(PixelToHex(coords));
+		}
 	}
 
     public override void _Draw()
@@ -122,7 +146,6 @@ public partial class Map : Node2D
 				// Convert axial coordinate to array coordinate to store in representation
 				this.map[q_offset + this.arrayOffset, r] = t; // Add to map representation
 
-				// GD.Print("[" + (q_offset + this.arrayOffset) + ", " + r + "]");
 			}
 		}
 
@@ -130,10 +153,26 @@ public partial class Map : Node2D
 		QueueRedraw();
 	}
 
-	private Vector2 HexToPixel(Vector2 coords) {
+	private void GenerateChunks()
+	{
+
+	}
+
+	private Vector2 HexToPixel(Vector2 coords) 
+	{
 		var x = TILE_SIZE * (Math.Sqrt(3) * coords.X + Math.Sqrt(3)/2 * coords.Y);
 		var y = TILE_SIZE * (coords.Y * 3.0/2);
 		return new Vector2((float) x, (float) y);
+	}
+
+	private Vector2 PixelToHex(Vector2 coords) 
+	{
+		var q = (Math.Sqrt(3)/3 * coords.X + 1f/3 * coords.Y) / TILE_SIZE;
+		var r = (coords.Y * 2f/3) / TILE_SIZE;
+
+		// Don't forget to apply offset
+
+		return new Vector2((int) Math.Round(q), (int) Math.Round(r));	
 	}
 
 	// Converts axial coordinates (q, r) to 2d array indices.
