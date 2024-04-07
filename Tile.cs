@@ -15,8 +15,4 @@ public partial class Tile : Node2D
 	{
 	}
 
-	public void SetColor(Color c)
-	{
-		
-	}
 }

@@ -92,7 +92,6 @@ public partial class Map : Node2D
 						Vector2[] hexVertices = baseHexVertices.Select(v => v + this.map[x, y].Position).ToArray();
 						DrawColoredPolygon(hexVertices, this.GetRandomColor());
 					}
-
 				}
 			}
 		}
@@ -124,28 +123,18 @@ public partial class Map : Node2D
 		for (int q = 0; q < WIDTH; q++) {
 			for (int r = 0; r < HEIGHT; r++)
 			{
-				// Tile t = hexTileScene.Instantiate() as Tile; // Instantiate new tile
 				Tile t = new Tile();
 
 				// Adjust coordinates for rectangular offset
-				int q_offset = q;
-				if (r > 1) // Before r > 1, coordinates are not offset in axial space
-				{
-					// For r > 1, q_offset = q - Math.floor(r/2f)
-					q_offset -= (int) Math.Floor(r/2f); // Apply offset
-				}
+				int q_offset = ApplyQOffset(q, r);
 
 				// Calculate pixel coordinates of hex
 				var pixelCoords = this.HexToPixel(new Vector2(q_offset, r));
 
-				// AddChild(t); // Add hex to scene tree
-
 				t.Position += pixelCoords; // Set position based on pixel coord calculation
-				// t.SetColor(this.GetRandomColor());
 
 				// Convert axial coordinate to array coordinate to store in representation
 				this.map[q_offset + this.arrayOffset, r] = t; // Add to map representation
-
 			}
 		}
 
@@ -158,21 +147,63 @@ public partial class Map : Node2D
 
 	}
 
+	// Adjust coordinates for rectangular offset.
+	// Returns adjusted q value.
+	private int ApplyQOffset(int q, int r)
+	{
+		if (r > 1)
+		{
+			q = q - (int) Math.Floor(r/2f);
+			GD.Print("floored r: " + Math.Floor(r/2f));
+			GD.Print(q);
+		}
+		return q;
+	}
+
 	private Vector2 HexToPixel(Vector2 coords) 
 	{
 		var x = TILE_SIZE * (Math.Sqrt(3) * coords.X + Math.Sqrt(3)/2 * coords.Y);
-		var y = TILE_SIZE * (coords.Y * 3.0/2);
+		var y = TILE_SIZE * (coords.Y * 3f/2);
 		return new Vector2((float) x, (float) y);
 	}
 
 	private Vector2 PixelToHex(Vector2 coords) 
 	{
-		var q = (Math.Sqrt(3)/3 * coords.X + 1f/3 * coords.Y) / TILE_SIZE;
-		var r = (coords.Y * 2f/3) / TILE_SIZE;
+		var q = (float) (Math.Sqrt(3)/3 * coords.X + 1f/3 * coords.Y) / TILE_SIZE;
+		var r = (float) coords.Y * 2f/3 / TILE_SIZE;
 
-		// Don't forget to apply offset
+		Vector2 rounded = HexRound(new Vector2(q, r));
+		GD.Print("rounded r: " + rounded.Y);
+		rounded.X = ApplyQOffset((int) rounded.X, (int) rounded.Y);
 
-		return new Vector2((int) Math.Round(q), (int) Math.Round(r));	
+		return rounded;
+	}
+
+	private Vector2 HexRound(Vector2 rawCoords)
+	{
+		// Get the s coordinate (converting to cube coordinates)
+		float raw_q = rawCoords.X;
+		float raw_r = rawCoords.Y;
+		float raw_s = -rawCoords.X-rawCoords.Y;
+
+		// Initial rounding
+		var q = Math.Round(raw_q);
+		var r = Math.Round(raw_r);
+		var s = Math.Round(raw_s);
+
+		// Remaining fractions of hex
+		var q_diff = Math.Abs(q - raw_q);
+		var r_diff = Math.Abs(r - raw_r);
+		var s_diff = Math.Abs(s - raw_s);
+
+		if (q_diff > r_diff && q_diff > s_diff)
+			q = -r-s;
+		else if (r_diff > s_diff)
+			r = -q-s;
+		else
+			s = -q-r;
+
+		return new Vector2((int) q, (int) r);
 	}
 
 	// Converts axial coordinates (q, r) to 2d array indices.

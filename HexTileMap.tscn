@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://c48rkw0irpmlg"]
+
+[ext_resource type="Texture2D" uid="uid://bewbjqdj3tpa4" path="res://textures/hex_128.png" id="1_wxipi"]
+[ext_resource type="Script" path="res://HexTileMap.cs" id="2_alwc6"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c3bvs"]
+texture = ExtResource("1_wxipi")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_5xhv5"]
+tile_shape = 3
+tile_size = Vector2i(128, 128)
+sources/0 = SubResource("TileSetAtlasSource_c3bvs")
+
+[node name="HexTileMap" type="TileMap"]
+tile_set = SubResource("TileSet_5xhv5")
+format = 2
+script = ExtResource("2_alwc6")
