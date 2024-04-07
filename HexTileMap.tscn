@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://c48rkw0irpmlg"]
+[gd_scene load_steps=6 format=3 uid="uid://c48rkw0irpmlg"]
 
 [ext_resource type="Texture2D" uid="uid://bewbjqdj3tpa4" path="res://textures/hex_128.png" id="1_wxipi"]
 [ext_resource type="Script" path="res://HexTileMap.cs" id="2_alwc6"]
@@ -16,7 +16,14 @@ tile_shape = 3
 tile_size = Vector2i(128, 128)
 sources/0 = SubResource("TileSetAtlasSource_c3bvs")
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7slag"]
+noise_type = 3
+frequency = 0.0162
+fractal_octaves = 4
+metadata/_preview_in_3d_space_ = true
+
 [node name="HexTileMap" type="TileMap"]
 tile_set = SubResource("TileSet_5xhv5")
 format = 2
 script = ExtResource("2_alwc6")
+noise = SubResource("FastNoiseLite_7slag")
