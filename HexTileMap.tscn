@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://c48rkw0irpmlg"]
+[gd_scene load_steps=8 format=3 uid="uid://c48rkw0irpmlg"]
 
 [ext_resource type="Texture2D" uid="uid://dpuqqa2qg3h1m" path="res://textures/hex_128.png" id="1_wxipi"]
 [ext_resource type="Script" path="res://HexTileMap.cs" id="2_alwc6"]
+[ext_resource type="Texture2D" uid="uid://ddn2lw3aadr1r" path="res://textures/hex_overlays.png" id="2_qrtu6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c3bvs"]
 texture = ExtResource("1_wxipi")
@@ -15,10 +16,19 @@ texture_region_size = Vector2i(128, 128)
 0:3/0 = 0
 1:3/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_krary"]
+texture = ExtResource("2_qrtu6")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_5xhv5"]
 tile_shape = 3
 tile_size = Vector2i(128, 128)
 sources/0 = SubResource("TileSetAtlasSource_c3bvs")
+sources/1 = SubResource("TileSetAtlasSource_krary")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_7slag"]
 noise_type = 3
@@ -30,5 +40,11 @@ metadata/_preview_in_3d_space_ = true
 [node name="HexTileMap" type="TileMap"]
 tile_set = SubResource("TileSet_5xhv5")
 format = 2
+layer_0/name = "Base"
+layer_1/name = "Borders"
+layer_1/modulate = Color(1, 1, 1, 0.117647)
+layer_1/tile_data = PackedInt32Array()
+layer_2/name = "Selection Overlay"
+layer_2/tile_data = PackedInt32Array()
 script = ExtResource("2_alwc6")
 noise = SubResource("FastNoiseLite_7slag")

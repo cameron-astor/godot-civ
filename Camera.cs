@@ -16,6 +16,9 @@ public partial class Camera : Camera2D
 	float topBound;
 	float bottomBound;
 
+	// Mouse controls
+	bool mouseWheelScrollingUp = false;
+	bool mouseWheelScrollingDown = false;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -57,19 +60,39 @@ public partial class Camera : Camera2D
 		}
 
 		// Zoom controls
-		if (Input.IsActionPressed("map_zoom_in"))
+		if (Input.IsActionPressed("map_zoom_in") || mouseWheelScrollingUp)
 		{
 			if (this.Zoom < new Vector2(3f, 3f)) {
 				this.Zoom += new Vector2(zoom_speed, zoom_speed);
 			}
 			// GD.Print(this.Zoom);
 		}
-		if (Input.IsActionPressed("map_zoom_out"))
+		if (Input.IsActionPressed("map_zoom_out") || mouseWheelScrollingDown)
 		{
 			if (this.Zoom > new Vector2(0.1f, 0.1f)) {
 				this.Zoom -= new Vector2(zoom_speed, zoom_speed);
 			}
 			// GD.Print(this.Zoom);
+		}
+
+		if (Input.IsActionJustReleased("mouse_zoom_in"))
+		{
+			mouseWheelScrollingUp = true;
+		}
+
+		if (!Input.IsActionJustReleased("mouse_zoom_in"))
+		{
+			mouseWheelScrollingUp = false;
+		}
+
+		if (Input.IsActionJustReleased("mouse_zoom_out"))
+		{
+			mouseWheelScrollingDown = true;
+		}
+
+		if (!Input.IsActionJustReleased("mouse_zoom_out"))
+		{
+			mouseWheelScrollingDown = false;
 		}
 		
 	}

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbjldhslk6i0r"
-path="res://.godot/imported/godot_civ.png-c07005b94eaa2fd6065e2152f7a6cd17.ctex"
+uid="uid://ddn2lw3aadr1r"
+path="res://.godot/imported/hex_overlays.png-e873892fe7a9d1b0d6e2f5542ed07ff5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textures/godot_civ.png"
-dest_files=["res://.godot/imported/godot_civ.png-c07005b94eaa2fd6065e2152f7a6cd17.ctex"]
+source_file="res://textures/hex_overlays.png"
+dest_files=["res://.godot/imported/hex_overlays.png-e873892fe7a9d1b0d6e2f5542ed07ff5.ctex"]
 
 [params]
 

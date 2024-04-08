@@ -163,6 +163,7 @@ public partial class HexTileMap : TileMap
 																&& noiseValue < range.Max).Type;
 				mapData[new Vector2I(x, y)] = h;
 				SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+				SetCell(1, new Vector2I(x, y), 1, new Vector2I(0, 0));
 			}
 		}
 
@@ -245,13 +246,31 @@ public partial class HexTileMap : TileMap
 
 	}
 
+	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
 		if (Input.IsActionJustPressed("left_click")) {
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
-			GD.Print(mapCoords);
-			GD.Print(mapData[mapCoords].terrainType);
+			
+			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height)
+			{
+				if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
+					SetCell(2, currentSelectedCell, -1);
+				}
+				
+				SetCell(2, mapCoords, 1, new Vector2I(0, 1));
+
+				currentSelectedCell = mapCoords; // Update current
+
+				GD.Print(mapCoords);
+				GD.Print(mapData[mapCoords].terrainType);
+			} else {
+				SetCell(2, currentSelectedCell, -1);
+			}
+
+
 		}
 	}
 }
