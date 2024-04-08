@@ -2,14 +2,17 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, FOREST, BEACH }
 
 public class Hex
 {
 
+	// Tile attributes
 	public TerrainType terrainType;
+	public int food;
+	public int production;
+
 	
 	public Hex()
 	{
@@ -27,7 +30,6 @@ public partial class HexTileMap : TileMap
 
 	Dictionary<Vector2I, Hex> mapData;
 	Dictionary<TerrainType, Vector2I> terrainTextures; // Maps terrain types to their textures in texture atlas
-	List<(float Min, float Max, TerrainType Type)> terrainGenValues;
 
 	[Export] // Debug only. To be removed and set up with code.
 	FastNoiseLite noise;
@@ -42,6 +44,9 @@ public partial class HexTileMap : TileMap
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		////////////////////////
+		// TERRAIN GENERATION //
+		////////////////////////
 
 		mapData = new Dictionary<Vector2I, Hex>();
 		terrainTextures = new Dictionary<TerrainType, Vector2I>
@@ -244,6 +249,45 @@ public partial class HexTileMap : TileMap
 			}
 		}
 
+
+
+		///////////////////////////////////
+		// TILE RESOURCES AND ATTRIBUTES //
+		///////////////////////////////////
+		
+		// Populate tiles with food and production
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+			{
+				Hex h = mapData[new Vector2I(x, y)]; // Get hex at the coordinate
+				
+				// Resource spawning logic
+				switch (h.terrainType)
+				{
+					case TerrainType.PLAINS:
+						h.food = r.Next(2, 6);
+						h.production = r.Next(0, 3);
+						break;
+					case TerrainType.FOREST:
+						h.food = r.Next(1, 4);
+						h.production = r.Next(2, 6);
+						break;
+					case TerrainType.DESERT:
+						h.food = r.Next(0, 2);
+						h.production = r.Next(0, 2);
+						break;
+					case TerrainType.BEACH:
+						h.food = r.Next(0, 4);
+						h.production = r.Next(0, 2);
+						break;
+					default:
+						h.food = 0;
+						h.production = 0;
+						break;
+				}
+			}
+		}
 	}
 
 	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
@@ -264,8 +308,10 @@ public partial class HexTileMap : TileMap
 
 				currentSelectedCell = mapCoords; // Update current
 
-				GD.Print(mapCoords);
-				GD.Print(mapData[mapCoords].terrainType);
+				GD.Print("Coordinates: " + mapCoords);
+				GD.Print("Terrain: " + mapData[mapCoords].terrainType);
+				GD.Print("Food: " + mapData[mapCoords].food);
+				GD.Print("Production: " + mapData[mapCoords].production);
 			} else {
 				SetCell(2, currentSelectedCell, -1);
 			}
