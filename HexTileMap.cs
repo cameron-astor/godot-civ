@@ -62,6 +62,7 @@ public partial class HexTileMap : TileMap
 		noise.FractalOctaves = 4;
 		float noiseMax = 0f; // Keep track of range of noise
 
+		// First pass: basic terrain and water
 		for (int x = 0; x < width; x++)
 		{
 			for (int y = 0; y < height; y++)
@@ -77,11 +78,26 @@ public partial class HexTileMap : TileMap
 
 		List<(float Min, float Max, TerrainType Type)> terrainGenValues = new List<(float Min, float Max, TerrainType Type)>
 		{
-			(0, noiseMax/10 * 3, TerrainType.WATER),
-			(noiseMax/10 * 3, noiseMax/10 * 5, TerrainType.SHALLOW_WATER),
-			(noiseMax/10 * 5, noiseMax/10 * 5.5f, TerrainType.BEACH),
-			(noiseMax/10 * 4, noiseMax + 0.05f, TerrainType.PLAINS)
+			(0, noiseMax/10 * 2, TerrainType.WATER),
+			(noiseMax/10 * 2, noiseMax/10 * 4, TerrainType.SHALLOW_WATER),
+			(noiseMax/10 * 4, noiseMax/10 * 4.5f, TerrainType.BEACH),
+			(noiseMax/10 * 4.5f, noiseMax + 0.05f, TerrainType.PLAINS)
 		};
+
+		// Second pass: deserts, forests, and ice
+		// noise.NoiseType = FastNoiseLite.NoiseTypeEnum.Cellular;
+		// noise.Seed = r.Next(10000);
+	
+		// for (int x = 0; x < width; x++)
+		// {
+		// 	for (int y = 0; y < height; y++)
+		// 	{
+		// 		noiseMap[x, y] = Math.Abs(noise.GetNoise2D(x, y));
+		// 		if (noiseMap[x, y] > noiseMax) noiseMax = noiseMap[x, y];
+		// 	}
+		// }
+
+		// Third pass: mountains
 
 		for (int x = 0; x < width; x++)
 		{
@@ -106,7 +122,7 @@ public partial class HexTileMap : TileMap
 	public override void _Process(double delta)
 	{
 		if (Input.IsActionJustPressed("left_click")) {
-			Vector2I mapCoords = LocalToMap(GetGlobalMousePosition());
+			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
 			GD.Print(mapCoords);
 			GD.Print(mapData[mapCoords].terrainType);
 		}

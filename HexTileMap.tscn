@@ -24,6 +24,7 @@ sources/0 = SubResource("TileSetAtlasSource_c3bvs")
 noise_type = 3
 frequency = 0.0089
 fractal_octaves = 4
+fractal_lacunarity = 2.25
 metadata/_preview_in_3d_space_ = true
 
 [node name="HexTileMap" type="TileMap"]
