@@ -12,3 +12,4 @@ script = ExtResource("3_cpe2n")
 velocity = 20
 
 [node name="HexTileMap" parent="." instance=ExtResource("4_1wtir")]
+scale = Vector2(1.00335, 1.01365)
