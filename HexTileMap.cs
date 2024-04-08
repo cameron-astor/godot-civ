@@ -136,8 +136,8 @@ public partial class HexTileMap : TileMap
 		{
 			(0, noiseMax/10 * 2.5f, TerrainType.WATER),
 			(noiseMax/10 * 2.5f, noiseMax/10 * 4, TerrainType.SHALLOW_WATER),
-			(noiseMax/10 * 4, noiseMax/10 * 4.4f, TerrainType.BEACH),
-			(noiseMax/10 * 4.4f, noiseMax + 0.05f, TerrainType.PLAINS)
+			(noiseMax/10 * 4, noiseMax/10 * 4.5f, TerrainType.BEACH),
+			(noiseMax/10 * 4.5f, noiseMax + 0.05f, TerrainType.PLAINS)
 		};
 
 		// Forest gen values
