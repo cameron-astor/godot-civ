@@ -20,8 +20,54 @@ public class Hex
 	}
 }
 
+// Represents a single civilization present
+// in the game. Civilizations have
+// cities, and units.
+// The territory of a civilization is identical to 
+// the combined territories of all its cities.
+public class Civilization 
+{
+	public List<City> cities;
+	public Color territoryColor;
+	public Color iconColor;
+	public string name;
+	public bool playerCiv;
+
+	public Civilization()
+	{
+		cities = new List<City>();
+	}
+
+}
+
+// Represents a single city under the control
+// of a particular civilization. Cities have their own territories
+// for the purposes of calculating resources etc.
+// Once established, cities never change their coordinates.
+// Cities are associated with a particular civilization at any
+// given time.
+public class City
+{
+	public Vector2I Centercoordinates;
+	public Civilization civ;
+	public List<Vector2I> territory;
+
+	public City(Vector2I coordinates, Civilization civ)
+	{
+		this.Centercoordinates = coordinates;
+		this.civ = civ;
+
+		territory = new List<Vector2I>();
+	}
+
+}
+
 public partial class HexTileMap : TileMap
 {
+
+	// Tile atlases
+	TileSetAtlasSource iconAtlas;
+	TileSetAtlasSource terrainAtlas;
 
 	[Export]
 	public int width = 106;
@@ -41,9 +87,16 @@ public partial class HexTileMap : TileMap
 	float[,] desertMap;
 	float[,] mountainMap;
 
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		// Get the tile atlas of base color icons.
+		// We will use this to change icons to a certain civilization's color
+		// via alternative tiles.
+		this.iconAtlas = (TileSetAtlasSource) TileSet.GetSource(2); // Takes in the ID number of the tile atlas as configured in the editor.
+		this.terrainAtlas = (TileSetAtlasSource) TileSet.GetSource(0);
+
 		////////////////////////
 		// TERRAIN GENERATION //
 		////////////////////////
@@ -288,6 +341,14 @@ public partial class HexTileMap : TileMap
 				}
 			}
 		}
+
+
+		//////////////////////////////
+		// CIVILIZATIONS AND CITIES //
+		//////////////////////////////
+		
+		// Create player civilization and starting city
+
 	}
 
 	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
@@ -295,7 +356,7 @@ public partial class HexTileMap : TileMap
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (Input.IsActionJustPressed("left_click")) {
+		if (Input.IsActionJustPressed("left_click")) { // Map controls
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
 			
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height)
@@ -312,6 +373,9 @@ public partial class HexTileMap : TileMap
 				GD.Print("Terrain: " + mapData[mapCoords].terrainType);
 				GD.Print("Food: " + mapData[mapCoords].food);
 				GD.Print("Production: " + mapData[mapCoords].production);
+
+				GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
+				GD.Print(GetNeighborCell(mapCoords, TileSet.CellNeighbor.TopRightSide)); // Test of neighbor cell
 			} else {
 				SetCell(2, currentSelectedCell, -1);
 			}
