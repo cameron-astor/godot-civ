@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, FOREST, BEACH }
+public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, FOREST, BEACH, CIV_COLOR_BASE }
 
 public class Hex
 {
@@ -27,8 +27,11 @@ public class Hex
 // the combined territories of all its cities.
 public class Civilization 
 {
+
+	public int id;
 	public List<City> cities;
 	public Color territoryColor;
+	public int territoryColorAltTileId;
 	public Color iconColor;
 	public string name;
 	public bool playerCiv;
@@ -38,26 +41,10 @@ public class Civilization
 		cities = new List<City>();
 	}
 
-}
-
-// Represents a single city under the control
-// of a particular civilization. Cities have their own territories
-// for the purposes of calculating resources etc.
-// Once established, cities never change their coordinates.
-// Cities are associated with a particular civilization at any
-// given time.
-public class City
-{
-	public Vector2I Centercoordinates;
-	public Civilization civ;
-	public List<Vector2I> territory;
-
-	public City(Vector2I coordinates, Civilization civ)
+	public void SetRandomColor()
 	{
-		this.Centercoordinates = coordinates;
-		this.civ = civ;
-
-		territory = new List<Vector2I>();
+		Random r = new Random();
+		territoryColor = new Color(r.Next(255)/255.0f, r.Next(255)/255.0f, r.Next(255)/255.0f);
 	}
 
 }
@@ -65,14 +52,27 @@ public class City
 public partial class HexTileMap : TileMap
 {
 
+	// PackedScenes
+	PackedScene cityScene;
+
+
 	// Tile atlases
 	TileSetAtlasSource iconAtlas;
 	TileSetAtlasSource terrainAtlas;
+
+	/////////////////////
+	// GAME PARAMETERS //
+	/////////////////////
 
 	[Export]
 	public int width = 106;
 	[Export]
 	public int height = 66;
+
+	[Export]
+	public int NUM_AI_CIVS = 0;
+
+
 
 	Dictionary<Vector2I, Hex> mapData;
 	Dictionary<TerrainType, Vector2I> terrainTextures; // Maps terrain types to their textures in texture atlas
@@ -91,6 +91,10 @@ public partial class HexTileMap : TileMap
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		// Load packed scenes
+		cityScene = ResourceLoader.Load<PackedScene>("City.tscn");
+
+
 		// Get the tile atlas of base color icons.
 		// We will use this to change icons to a certain civilization's color
 		// via alternative tiles.
@@ -111,7 +115,8 @@ public partial class HexTileMap : TileMap
 			{ TerrainType.SHALLOW_WATER, new Vector2I(1, 2) },
 			{ TerrainType.BEACH, new Vector2I(0, 2) },
 			{ TerrainType.FOREST, new Vector2I(1, 3) },
-			{ TerrainType.ICE, new Vector2I(0, 3) }		
+			{ TerrainType.ICE, new Vector2I(0, 3) },	
+			{ TerrainType.CIV_COLOR_BASE, new Vector2I(0, 3)}	
 		};
 
 		Random r = new Random();
@@ -348,6 +353,35 @@ public partial class HexTileMap : TileMap
 		//////////////////////////////
 		
 		// Create player civilization and starting city
+		Civilization playerCiv = new Civilization();
+		playerCiv.id = 0;
+		playerCiv.playerCiv = true;
+		playerCiv.SetRandomColor();
+
+		// Create AI civilizations
+		// TODO
+
+		// Create alt tiles for each civ's territory color.
+		// We base this off the ice tiles since they are almost white and
+		// can so can be modulated to other colors.
+
+		// Note that the alpha modulation (transparency) for these tiles are set in the TileMap layer they are
+		// assigned to, so we don't need to do that here.
+		int id = terrainAtlas.CreateAlternativeTile(terrainTextures[TerrainType.CIV_COLOR_BASE]); // Part of civ gen
+		terrainAtlas.GetTileData(terrainTextures[TerrainType.CIV_COLOR_BASE], id).Modulate = playerCiv.territoryColor; // Part of civ gen
+		
+		playerCiv.territoryColorAltTileId = id;
+
+		List<Vector2I> civStarts = GenerateCivStartingLocations(6);
+		foreach (Vector2I l in civStarts)
+		{
+			CreateCity(playerCiv, l, "City " + l.X);
+			// SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
+			// foreach (Vector2I cell in GetSurroundingCells(l))
+			// {
+			// 	SetCell(2, cell, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
+			// }
+		}
 
 	}
 
@@ -362,10 +396,10 @@ public partial class HexTileMap : TileMap
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height)
 			{
 				if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
-					SetCell(2, currentSelectedCell, -1);
+					SetCell(3, currentSelectedCell, -1);
 				}
 				
-				SetCell(2, mapCoords, 1, new Vector2I(0, 1));
+				SetCell(3, mapCoords, 1, new Vector2I(0, 1));
 
 				currentSelectedCell = mapCoords; // Update current
 
@@ -377,10 +411,81 @@ public partial class HexTileMap : TileMap
 				GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
 				GD.Print(GetNeighborCell(mapCoords, TileSet.CellNeighbor.TopRightSide)); // Test of neighbor cell
 			} else {
-				SetCell(2, currentSelectedCell, -1);
+				SetCell(3, currentSelectedCell, -1);
 			}
 
 
+		}
+	}
+
+	// Generates valid starting locations for a given number of civilizations to be placed in
+	// at the start of the game, avoiding overlap between them.
+	// Returns the starting locations as a list of Vector2I hex coordinates.
+
+	// POTENTIAL ISSUES:
+	// - Infinite loop if no valid location is found
+	public List<Vector2I> GenerateCivStartingLocations(int numLocations)
+	{
+		List<Vector2I> locations = new List<Vector2I>();
+		List<Vector2I> plainsTiles = new List<Vector2I>();
+
+		// Before we begin, we know that we want civs to spawn only on PLAINS terrain,
+		// so to narrow our search space we first iterate through the map and gather the coordinates
+		// that are PLAINS terrain.
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y ++)
+			{
+				if (mapData[new Vector2I(x, y)].terrainType == TerrainType.PLAINS)
+					plainsTiles.Add(new Vector2I(x, y));
+			}
+		}
+
+		Random r = new Random();
+		for (int i = 0; i < numLocations; i++)
+		{
+			// Generate a coordinate
+			Vector2I coord = plainsTiles[r.Next(plainsTiles.Count)]; // Pick a random plains tile.
+
+			// bool invalidLoc = true; // For each potential location, keep generating potential locations until valid one is found.
+			// while (invalidLoc) // POTENTIAL FOR INFINITE LOOP IF NO VALID LOCS ARE FOUND
+			// {
+			// 	// Check that the coord is a reasonable distance away from any starting locations already picked
+			// 	foreach (Vector2I l in locations)
+			// 	{
+			// 		if (coord.X <= l.X - 10 || coord.X >= l.X + 10 ||
+			// 			coord.Y <= l.Y - 10 || coord.Y >= l.Y + 10)
+			// 		{
+			// 			invalidLoc = false;
+			// 		}
+			// 	}
+			// 	coord = plainsTiles[r.Next(plainsTiles.Count)];
+			// }
+			locations.Add(coord);
+		}
+
+		return locations;
+	}
+
+	public void CreateCity(Civilization civ, Vector2I coords, string name)
+	{
+		City city = cityScene.Instantiate() as City;
+		civ.cities.Add(city); // Register city with civilization object
+		// Attach to scene tree
+		AddChild(city);
+
+		city.SetName(name);
+
+		city.centerCoordinates = coords;
+		city.AddTerritory(new List<Vector2I>{coords}); // Add city center coordinate
+		city.AddTerritory(GetSurroundingCells(coords).ToList()); // Add starting surrounding tiles
+
+		// Convert map coords to local space coordinates to place city node.
+		city.Position = MapToLocal(coords);
+
+		foreach (Vector2I l in city.territory)
+		{
+			SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 		}
 	}
 }
