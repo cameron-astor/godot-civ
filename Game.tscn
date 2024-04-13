@@ -18,3 +18,5 @@ zoom_speed = 0.1
 scale = Vector2(1.00335, 1.01365)
 width = 84
 height = 54
+
+[connection signal="SetCamera" from="HexTileMap" to="Camera" method="SetPosAndZoom"]

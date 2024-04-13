@@ -56,4 +56,3 @@ layer_3/name = "Selection Overlay"
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("2_alwc6")
 NUM_AI_CIVS = 6
-TERRAIN_FREQUENCY = 0.005

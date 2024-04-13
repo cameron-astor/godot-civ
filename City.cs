@@ -50,4 +50,9 @@ public partial class City : Node2D
 	{
 		label.Text = newName;
 	}
+
+	public void SetIconColor(Color c)
+	{
+		sprite.Modulate = c;
+	}
 }

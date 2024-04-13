@@ -42,6 +42,7 @@ public partial class Camera : Camera2D
 		{
 			if (this.Position.X < rightBound)
 				this.Position += new Vector2(velocity, 0);
+			// GD.Print(Zoom);
 		}
 		if (Input.IsActionPressed("map_left"))
 		{
@@ -95,6 +96,12 @@ public partial class Camera : Camera2D
 			mouseWheelScrollingDown = false;
 		}
 		
+	}
+
+	public void SetPosAndZoom(Vector2 pos, Vector2 zoom)
+	{
+		Position = pos;
+		// Zoom = zoom;
 	}
 
 }

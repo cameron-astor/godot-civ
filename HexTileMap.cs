@@ -59,7 +59,12 @@ public partial class HexTileMap : TileMap
 	// Tile atlases
 	TileSetAtlasSource iconAtlas;
 	TileSetAtlasSource terrainAtlas;
-	
+
+	// Signals
+	[Signal]
+	// A signal that sets the camera to the desired position and zoom from in game
+	public delegate void SetCameraEventHandler(Vector2 pos, Vector2 zoom); 
+
 
 	/////////////////////
 	// GAME PARAMETERS //
@@ -114,13 +119,17 @@ public partial class HexTileMap : TileMap
 			{ TerrainType.CIV_COLOR_BASE, new Vector2I(0, 3)}	
 		};
 
+		// TERRAIN GEN
 		GenerateTerrain();
 		
-		// Resource gen step
+		// RESOURCE GEN
 		GenerateResources();
 
 		
-		// Civilizations and cities gen step
+		// CIVILIZATIONS AND CITIES GEN
+		// TODO:
+		// - Make sure civs dont overlap (via logic in the gen starts function)
+		// - Make sure civs start on a reasonably sized piece of land
 		civs = new List<Civilization>();
 
 		// Create player civilization and starting city
@@ -128,9 +137,6 @@ public partial class HexTileMap : TileMap
 		playerCiv.id = 0;
 		playerCiv.playerCiv = true;
 		playerCiv.SetRandomColor();
-
-		// Create AI civilizations
-		// TODO
 
 		// Create alt tiles for each civ's territory color.
 		// We base this off the ice tiles since they are almost white and
@@ -143,17 +149,16 @@ public partial class HexTileMap : TileMap
 		
 		playerCiv.territoryColorAltTileId = id;
 
+		// Create player city
+		CreateCity(playerCiv, GenerateCivStartingLocations(1)[0], "Player City");
+
+		// Go through the same process for all AI civs.
 		GenerateAICivs();
-		// List<Vector2I> civStarts = GenerateCivStartingLocations(6);
-		// foreach (Vector2I l in civStarts)
-		// {
-		// 	CreateCity(playerCiv, l, "City " + l.X);
-		// 	// SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
-		// 	// foreach (Vector2I cell in GetSurroundingCells(l))
-		// 	// {
-		// 	// 	SetCell(2, cell, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
-		// 	// }
-		// }
+
+
+		// CAMERA ETC SETUP
+		// Send signal to camera to center on player city to start.
+		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
 
 	}
 
@@ -245,6 +250,8 @@ public partial class HexTileMap : TileMap
 		civ.cities.Add(city); // Register city with civilization object
 		// Attach to scene tree
 		AddChild(city);
+
+		city.SetIconColor(civ.territoryColor); 
 
 		city.SetName(name);
 
