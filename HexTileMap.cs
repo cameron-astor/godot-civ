@@ -88,6 +88,9 @@ public partial class HexTileMap : TileMap
 	float[,] mountainMap;
 
 
+	// GAMEPLAY DATA
+	List<Civilization> civs;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -352,6 +355,8 @@ public partial class HexTileMap : TileMap
 		// CIVILIZATIONS AND CITIES //
 		//////////////////////////////
 		
+		civs = new List<Civilization>();
+
 		// Create player civilization and starting city
 		Civilization playerCiv = new Civilization();
 		playerCiv.id = 0;
@@ -372,16 +377,17 @@ public partial class HexTileMap : TileMap
 		
 		playerCiv.territoryColorAltTileId = id;
 
-		List<Vector2I> civStarts = GenerateCivStartingLocations(6);
-		foreach (Vector2I l in civStarts)
-		{
-			CreateCity(playerCiv, l, "City " + l.X);
-			// SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
-			// foreach (Vector2I cell in GetSurroundingCells(l))
-			// {
-			// 	SetCell(2, cell, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
-			// }
-		}
+		GenerateAICivs();
+		// List<Vector2I> civStarts = GenerateCivStartingLocations(6);
+		// foreach (Vector2I l in civStarts)
+		// {
+		// 	CreateCity(playerCiv, l, "City " + l.X);
+		// 	// SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
+		// 	// foreach (Vector2I cell in GetSurroundingCells(l))
+		// 	// {
+		// 	// 	SetCell(2, cell, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], id);
+		// 	// }
+		// }
 
 	}
 
@@ -487,5 +493,33 @@ public partial class HexTileMap : TileMap
 		{
 			SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 		}
+	}
+
+	public void GenerateAICivs()
+	{
+		List<Vector2I> civStarts = GenerateCivStartingLocations(NUM_AI_CIVS);
+		
+		for (int i = 0; i < civStarts.Count; i++)
+		{
+			Civilization currentCiv = new Civilization();
+			currentCiv.id = i + 1; // id 0 reserved for player
+			currentCiv.playerCiv = false;
+			currentCiv.SetRandomColor();
+
+			civs.Add(currentCiv);
+
+			// Setup alt tile colors
+			int id = terrainAtlas.CreateAlternativeTile(terrainTextures[TerrainType.CIV_COLOR_BASE]); // Part of civ gen
+			terrainAtlas.GetTileData(terrainTextures[TerrainType.CIV_COLOR_BASE], id).Modulate = currentCiv.territoryColor; // Part of civ gen
+		
+			currentCiv.territoryColorAltTileId = id;
+
+			CreateCity(currentCiv, civStarts[i], "City " + civStarts[i].X);
+		}
+	}
+
+	public void GenerateTerrain()
+	{
+		
 	}
 }
