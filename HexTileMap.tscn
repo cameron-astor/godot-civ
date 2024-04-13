@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c48rkw0irpmlg"]
+[gd_scene load_steps=9 format=3 uid="uid://c48rkw0irpmlg"]
 
 [ext_resource type="Texture2D" uid="uid://dpuqqa2qg3h1m" path="res://textures/hex_128.png" id="1_wxipi"]
 [ext_resource type="Script" path="res://HexTileMap.cs" id="2_alwc6"]
@@ -42,13 +42,6 @@ sources/0 = SubResource("TileSetAtlasSource_c3bvs")
 sources/1 = SubResource("TileSetAtlasSource_krary")
 sources/2 = SubResource("TileSetAtlasSource_e6qwj")
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_7slag"]
-noise_type = 3
-frequency = 0.0089
-fractal_octaves = 4
-fractal_lacunarity = 2.25
-metadata/_preview_in_3d_space_ = true
-
 [node name="HexTileMap" type="TileMap"]
 tile_set = SubResource("TileSet_5xhv5")
 format = 2
@@ -63,4 +56,4 @@ layer_3/name = "Selection Overlay"
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("2_alwc6")
 NUM_AI_CIVS = 6
-noise = SubResource("FastNoiseLite_7slag")
+TERRAIN_FREQUENCY = 0.005
