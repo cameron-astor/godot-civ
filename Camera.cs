@@ -100,6 +100,7 @@ public partial class Camera : Camera2D
 
 	public void SetPosAndZoom(Vector2 pos, Vector2 zoom)
 	{
+		// PositionSmoothingEnabled = false;
 		Position = pos;
 		// Zoom = zoom;
 	}

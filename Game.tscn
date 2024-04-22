@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4yav2ulwuktq"]
+[gd_scene load_steps=5 format=3 uid="uid://b4yav2ulwuktq"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_bdkcw"]
 [ext_resource type="Script" path="res://Camera.cs" id="3_cpe2n"]
 [ext_resource type="PackedScene" uid="uid://c48rkw0irpmlg" path="res://HexTileMap.tscn" id="4_1wtir"]
+[ext_resource type="PackedScene" uid="uid://cpcpycvqqkwks" path="res://CityUI.tscn" id="4_604pf"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_bdkcw")
@@ -19,4 +20,9 @@ scale = Vector2(1.00335, 1.01365)
 width = 84
 height = 54
 
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="CityUI" parent="CanvasLayer" instance=ExtResource("4_604pf")]
+
+[connection signal="SendCityUIInfo" from="HexTileMap" to="CanvasLayer/CityUI" method="SetCityUI"]
 [connection signal="SetCamera" from="HexTileMap" to="Camera" method="SetPosAndZoom"]

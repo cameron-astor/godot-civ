@@ -14,6 +14,10 @@ config/name="zenva_civ"
 run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 
+[display]
+
+window/stretch/mode="canvas_items"
+
 [dotnet]
 
 project/assembly_name="zenva_civ"

@@ -64,6 +64,8 @@ public partial class HexTileMap : TileMap
 	[Signal]
 	// A signal that sets the camera to the desired position and zoom from in game
 	public delegate void SetCameraEventHandler(Vector2 pos, Vector2 zoom); 
+	[Signal]
+	public delegate void SendCityUIInfoEventHandler(City c);
 
 
 	/////////////////////
@@ -91,6 +93,8 @@ public partial class HexTileMap : TileMap
 
 	// GAMEPLAY DATA
 	List<Civilization> civs;
+	Dictionary<Vector2I, City> cities;
+	
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -131,6 +135,7 @@ public partial class HexTileMap : TileMap
 		// - Make sure civs dont overlap (via logic in the gen starts function)
 		// - Make sure civs start on a reasonably sized piece of land
 		civs = new List<Civilization>();
+		cities = new Dictionary<Vector2I, City>();
 
 		// Create player civilization and starting city
 		Civilization playerCiv = new Civilization();
@@ -169,6 +174,14 @@ public partial class HexTileMap : TileMap
 	{
 		if (Input.IsActionJustPressed("left_click")) { // Map controls
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
+
+			// If the tile is a city
+			// TODO: check if player city
+			if (cities.ContainsKey(mapCoords))
+			{
+				EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
+			}
+
 			
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height)
 			{
@@ -247,6 +260,7 @@ public partial class HexTileMap : TileMap
 	public void CreateCity(Civilization civ, Vector2I coords, string name)
 	{
 		City city = cityScene.Instantiate() as City;
+		city.map = this; // Give city a reference to the map
 		civ.cities.Add(city); // Register city with civilization object
 		// Attach to scene tree
 		AddChild(city);
@@ -266,6 +280,8 @@ public partial class HexTileMap : TileMap
 		{
 			SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 		}
+
+		cities[coords] = city; // Add to cities lookup table for map
 	}
 
 	public void GenerateAICivs()
@@ -540,5 +556,11 @@ public partial class HexTileMap : TileMap
 			}
 		}
 
+	}
+
+	// Returns a the Hex object associated with a given map coordinate.
+	public Hex GetHex(Vector2I coords)
+	{
+		return mapData[coords];
 	}
 }
