@@ -246,26 +246,43 @@ public partial class HexTileMap : TileMap
 		for (int i = 0; i < numLocations; i++)
 		{
 			// Generate a coordinate
-			Vector2I coord = plainsTiles[r.Next(plainsTiles.Count)]; // Pick a random plains tile.
+			Vector2I coord = new Vector2I();  // Pick a random plains tile.
 
-			// bool invalidLoc = true; // For each potential location, keep generating potential locations until valid one is found.
-			// while (invalidLoc) // POTENTIAL FOR INFINITE LOOP IF NO VALID LOCS ARE FOUND
-			// {
-			// 	// Check that the coord is a reasonable distance away from any starting locations already picked
-			// 	foreach (Vector2I l in locations)
-			// 	{
-			// 		if (coord.X <= l.X - 10 || coord.X >= l.X + 10 ||
-			// 			coord.Y <= l.Y - 10 || coord.Y >= l.Y + 10)
-			// 		{
-			// 			invalidLoc = false;
-			// 		}
-			// 	}
-			// 	coord = plainsTiles[r.Next(plainsTiles.Count)];
-			// }
+			bool valid = false;
+			int counter = 0; // prevent infinite loop. For now, if after 100 attempts no suitable locations are found, accept unsuitable location.
+
+			while (!valid && counter < 100)
+			{
+				coord = plainsTiles[r.Next(plainsTiles.Count)];
+				valid = IsValidLocation(coord, locations);
+				counter++;
+			}
+			
 			locations.Add(coord);
 		}
 
 		return locations;
+	}
+
+	// Checks whether a given coordinate is valid.
+	// locations should be a list of already generated city coordinates
+	private bool IsValidLocation(Vector2I coord, List<Vector2I> locations)
+	{
+		// Check that coordinate is not too close to map edge,
+		// as this can cause bugs due to territory extending beyond the map edge.
+		if (coord.X < 3 || coord.X > width - 3 ||
+			coord.Y < 3 || coord.Y > height - 3)
+		{
+			return false;
+		}
+
+		foreach (Vector2I l in locations) // Check cities aren't too close
+		{
+			if (Math.Abs(coord.X - l.X) < 3 || Math.Abs(coord.Y - l.Y) < 3)
+				return false;  // The city is too close to another
+		}		
+
+		return true;
 	}
 
 	public void CreateCity(Civilization civ, Vector2I coords, string name)
