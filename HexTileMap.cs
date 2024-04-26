@@ -68,6 +68,8 @@ public partial class HexTileMap : TileMap
 	public delegate void SendCityUIInfoEventHandler(City c); // Sends city info to the UI
 	[Signal]
 	public delegate void SendTerrainUIInfoEventHandler(TerrainType t, int f, int p); // Sends terrain info to the UI
+	[Signal]
+	public delegate void ClickOffMapEventHandler(); // Signals that a click off map has occurred
 
 
 	/////////////////////
@@ -177,19 +179,22 @@ public partial class HexTileMap : TileMap
 		if (Input.IsActionJustPressed("left_click")) { // Map controls
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
 
-			// If the tile is a city
-			// TODO: check if player city
-			if (cities.ContainsKey(mapCoords))
+			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height) // If click is in bounds of the map
 			{
-				EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
-			} else { // Tile is not a city
-				Hex h = mapData[mapCoords];
-				EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
-			}
+				Hex h = mapData[mapCoords]; // Get the clicked hex
 
-			
-			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height)
-			{
+				// Send signals for UI, etc.
+				
+				// If the tile is a city
+				// TODO: check if player city
+				if (cities.ContainsKey(mapCoords))
+				{
+					EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
+				} else { // Tile is not a city
+					EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+				}
+
+
 				if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
 					SetCell(3, currentSelectedCell, -1);
 				}
@@ -205,7 +210,8 @@ public partial class HexTileMap : TileMap
 
 				GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
 				GD.Print(GetNeighborCell(mapCoords, TileSet.CellNeighbor.TopRightSide)); // Test of neighbor cell
-			} else {
+			} else { // Click off map occurred
+				EmitSignal(SignalName.ClickOffMap);
 				SetCell(3, currentSelectedCell, -1);
 			}
 

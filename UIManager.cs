@@ -11,6 +11,7 @@ public partial class UIManager : Node
 {
 	// City UI TODO
 	TerrainTileUI terrainUi;
+	CityUI cityUI;
 	Panel unitUi;
 	Panel generalUi;
 
@@ -20,6 +21,7 @@ public partial class UIManager : Node
 	{
 		// Get UI panels
 		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
+		cityUI = (CityUI) GetNode<Control>("CityUI");
 		unitUi = GetNode<Panel>("UnitUi");
 		generalUi = GetNode<Panel>("GeneralUi");
 	}
@@ -35,7 +37,7 @@ public partial class UIManager : Node
 	{
 		terrainUi.Visible = false;
 		unitUi.Visible = false;
-
+		cityUI.Visible = false;
 	}
 
 	public void SetTerrainUI(TerrainType ttype, int food, int prod)
@@ -45,8 +47,10 @@ public partial class UIManager : Node
 		terrainUi.Visible = true;
 	}
 
-	public void SetCityUI()
+	public void SetCityUI(City c)
 	{
-
+		HideAllPopups();
+		cityUI.SetCityUI(c);
+		cityUI.Visible = true;
 	}
 }

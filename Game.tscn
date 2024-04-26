@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://b4yav2ulwuktq"]
+[gd_scene load_steps=5 format=3 uid="uid://b4yav2ulwuktq"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_bdkcw"]
 [ext_resource type="Script" path="res://Camera.cs" id="3_cpe2n"]
 [ext_resource type="PackedScene" uid="uid://c48rkw0irpmlg" path="res://HexTileMap.tscn" id="4_1wtir"]
-[ext_resource type="PackedScene" uid="uid://cpcpycvqqkwks" path="res://CityUI.tscn" id="4_604pf"]
 [ext_resource type="PackedScene" uid="uid://dfx5j0pxcdo7w" path="res://UIManager.tscn" id="5_ssi0e"]
 
 [node name="Game" type="Node"]
@@ -23,11 +22,9 @@ height = 54
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="CityUI" parent="CanvasLayer" instance=ExtResource("4_604pf")]
-visible = false
-
 [node name="UiManager" parent="CanvasLayer" instance=ExtResource("5_ssi0e")]
 
-[connection signal="SendCityUIInfo" from="HexTileMap" to="CanvasLayer/CityUI" method="SetCityUI"]
+[connection signal="ClickOffMap" from="HexTileMap" to="CanvasLayer/UiManager" method="HideAllPopups"]
+[connection signal="SendCityUIInfo" from="HexTileMap" to="CanvasLayer/UiManager" method="SetCityUI"]
 [connection signal="SendTerrainUIInfo" from="HexTileMap" to="CanvasLayer/UiManager" method="SetTerrainUI"]
 [connection signal="SetCamera" from="HexTileMap" to="Camera" method="SetPosAndZoom"]

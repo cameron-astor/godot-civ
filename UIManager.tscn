@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://dfx5j0pxcdo7w"]
+[gd_scene load_steps=6 format=3 uid="uid://dfx5j0pxcdo7w"]
 
 [ext_resource type="Script" path="res://UIManager.cs" id="1_gxeiy"]
 [ext_resource type="PackedScene" uid="uid://di0qja2xn3qjt" path="res://TerrainTileUI.tscn" id="2_apdqk"]
 [ext_resource type="PackedScene" uid="uid://bmdgvbr1wemj2" path="res://UnitUI.tscn" id="3_bvkr2"]
 [ext_resource type="PackedScene" uid="uid://d0o0gnfspkoa7" path="res://GeneralUI.tscn" id="4_tts2b"]
+[ext_resource type="PackedScene" uid="uid://cpcpycvqqkwks" path="res://CityUI.tscn" id="5_ovbi1"]
 
 [node name="UiManager" type="Node"]
 script = ExtResource("1_gxeiy")
@@ -15,3 +16,6 @@ visible = false
 visible = false
 
 [node name="GeneralUi" parent="." instance=ExtResource("4_tts2b")]
+
+[node name="CityUI" parent="." instance=ExtResource("5_ovbi1")]
+visible = false

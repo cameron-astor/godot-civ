@@ -10,6 +10,8 @@ public partial class TerrainTileUI : Panel
 	Label foodLabel;
 	Label productionLabel;
 
+	TextureRect terrainImage;
+
 	// Mappings for terrain type names
 	Dictionary<TerrainType, string> terrainTypeStrings = new Dictionary<TerrainType, string>
 	{
@@ -32,6 +34,30 @@ public partial class TerrainTileUI : Panel
 		terrainLabel = GetNode<Label>("TerrainLabel");
 		foodLabel = GetNode<Label>("FoodLabel");
 		productionLabel = GetNode<Label>("ProductionLabel");
+
+		terrainImage = GetNode<TextureRect>("TerrainImage");
+
+		// Set up terrain images
+		Texture2D plains = (Texture2D) ResourceLoader.Load("res://textures/plains.jpg");
+		Texture2D beach = (Texture2D) ResourceLoader.Load("res://textures/beach.jpg");
+		Texture2D desert = (Texture2D) ResourceLoader.Load("res://textures/desert.jpg");
+		Texture2D mountain = (Texture2D) ResourceLoader.Load("res://textures/mountain.jpg");
+		Texture2D ice = (Texture2D) ResourceLoader.Load("res://textures/ice.jpg");
+		Texture2D ocean = (Texture2D) ResourceLoader.Load("res://textures/ocean.jpg");
+		Texture2D shallow = (Texture2D) ResourceLoader.Load("res://textures/shallow.jpg");
+		Texture2D forest = (Texture2D) ResourceLoader.Load("res://textures/forest.jpg");
+
+		terrainTypeImages = new Dictionary<TerrainType, Texture2D> // Terrain to image dict
+		{
+			{ TerrainType.PLAINS, plains },
+			{ TerrainType.BEACH,  beach },
+			{ TerrainType.DESERT, desert },
+			{ TerrainType.MOUNTAIN, mountain },
+			{ TerrainType.ICE, ice },
+			{ TerrainType.WATER, ocean },
+			{ TerrainType.SHALLOW_WATER, shallow },
+			{ TerrainType.FOREST, forest },
+		};
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -41,6 +67,7 @@ public partial class TerrainTileUI : Panel
 
 	public void SetTerrainUI(TerrainType ttype, int food, int prod)
 	{
+		terrainImage.Texture = terrainTypeImages[ttype];
 		terrainLabel.Text = "Terrain: " + terrainTypeStrings[ttype];
 		foodLabel.Text = "Food: " + food;
 		productionLabel.Text = "Production: " + prod;
