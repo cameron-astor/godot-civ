@@ -10,7 +10,7 @@ using System;
 public partial class UIManager : Node
 {
 	// City UI TODO
-	Panel terrainUi;
+	TerrainTileUI terrainUi;
 	Panel unitUi;
 	Panel generalUi;
 
@@ -19,7 +19,7 @@ public partial class UIManager : Node
 	public override void _Ready()
 	{
 		// Get UI panels
-		terrainUi = GetNode<Panel>("TerrainTileUi");
+		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
 		unitUi = GetNode<Panel>("UnitUi");
 		generalUi = GetNode<Panel>("GeneralUi");
 	}
@@ -35,6 +35,18 @@ public partial class UIManager : Node
 	{
 		terrainUi.Visible = false;
 		unitUi.Visible = false;
+
+	}
+
+	public void SetTerrainUI(TerrainType ttype, int food, int prod)
+	{
+		HideAllPopups(); // clear screen of current popups
+		terrainUi.SetTerrainUI(ttype, food, prod);
+		terrainUi.Visible = true;
+	}
+
+	public void SetCityUI()
+	{
 
 	}
 }

@@ -1,10 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://di0qja2xn3qjt"]
+[gd_scene load_steps=3 format=3 uid="uid://di0qja2xn3qjt"]
 
 [ext_resource type="Texture2D" uid="uid://c2p7t3i1hus78" path="res://textures/plains.jpg" id="1_mhbhd"]
+[ext_resource type="Script" path="res://TerrainTileUI.cs" id="1_umdso"]
 
 [node name="TerrainTileUi" type="Panel"]
 offset_right = 248.0
 offset_bottom = 258.0
+script = ExtResource("1_umdso")
 
 [node name="TerrainImage" type="TextureRect" parent="."]
 layout_mode = 0

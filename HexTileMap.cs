@@ -65,7 +65,9 @@ public partial class HexTileMap : TileMap
 	// A signal that sets the camera to the desired position and zoom from in game
 	public delegate void SetCameraEventHandler(Vector2 pos, Vector2 zoom); 
 	[Signal]
-	public delegate void SendCityUIInfoEventHandler(City c);
+	public delegate void SendCityUIInfoEventHandler(City c); // Sends city info to the UI
+	[Signal]
+	public delegate void SendTerrainUIInfoEventHandler(TerrainType t, int f, int p); // Sends terrain info to the UI
 
 
 	/////////////////////
@@ -180,6 +182,9 @@ public partial class HexTileMap : TileMap
 			if (cities.ContainsKey(mapCoords))
 			{
 				EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
+			} else { // Tile is not a city
+				Hex h = mapData[mapCoords];
+				EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
 			}
 
 			
