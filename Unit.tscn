@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1w6qyc1lkgai"]
+
+[ext_resource type="Script" path="res://Unit.cs" id="1_4ks37"]
+[ext_resource type="Texture2D" uid="uid://613260kp638s" path="res://textures/settler.png" id="1_6ppyt"]
+
+[node name="Unit" type="Node2D"]
+script = ExtResource("1_4ks37")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, 2)
+texture = ExtResource("1_6ppyt")
