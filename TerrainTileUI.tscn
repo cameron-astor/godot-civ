@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://di0qja2xn3qjt"]
+
+[ext_resource type="Texture2D" uid="uid://c2p7t3i1hus78" path="res://textures/plains.jpg" id="1_mhbhd"]
+
+[node name="TerrainTileUi" type="Panel"]
+offset_right = 248.0
+offset_bottom = 258.0
+
+[node name="TerrainImage" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 248.0
+offset_bottom = 160.0
+texture = ExtResource("1_mhbhd")
+expand_mode = 1
+
+[node name="TerrainLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 166.0
+offset_right = 237.0
+offset_bottom = 189.0
+text = "Terrain:"
+
+[node name="FoodLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 194.0
+offset_right = 238.0
+offset_bottom = 217.0
+text = "Food: "
+
+[node name="ProductionLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 222.0
+offset_right = 237.0
+offset_bottom = 245.0
+text = "Production: "

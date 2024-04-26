@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://dfx5j0pxcdo7w"]
+
+[ext_resource type="Script" path="res://UIManager.cs" id="1_gxeiy"]
+[ext_resource type="PackedScene" uid="uid://di0qja2xn3qjt" path="res://TerrainTileUI.tscn" id="2_apdqk"]
+[ext_resource type="PackedScene" uid="uid://bmdgvbr1wemj2" path="res://UnitUI.tscn" id="3_bvkr2"]
+[ext_resource type="PackedScene" uid="uid://d0o0gnfspkoa7" path="res://GeneralUI.tscn" id="4_tts2b"]
+
+[node name="UiManager" type="Node"]
+script = ExtResource("1_gxeiy")
+
+[node name="TerrainTileUi" parent="." instance=ExtResource("2_apdqk")]
+visible = false
+
+[node name="UnitUi" parent="." instance=ExtResource("3_bvkr2")]
+visible = false
+
+[node name="GeneralUi" parent="." instance=ExtResource("4_tts2b")]

@@ -23,6 +23,7 @@ height = 54
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="CityUI" parent="CanvasLayer" instance=ExtResource("4_604pf")]
+visible = false
 
 [connection signal="SendCityUIInfo" from="HexTileMap" to="CanvasLayer/CityUI" method="SetCityUI"]
 [connection signal="SetCamera" from="HexTileMap" to="Camera" method="SetPosAndZoom"]

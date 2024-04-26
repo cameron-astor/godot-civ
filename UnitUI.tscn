@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmdgvbr1wemj2"]
+
+[ext_resource type="Texture2D" uid="uid://da45yw8mbe7rc" path="res://textures/settler_image.png" id="1_tboap"]
+
+[node name="UnitUi" type="Panel"]
+offset_right = 248.0
+offset_bottom = 400.0
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 248.0
+offset_bottom = 160.0
+texture = ExtResource("1_tboap")
+expand_mode = 1
+
+[node name="UnitTypeLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 166.0
+offset_right = 90.0
+offset_bottom = 189.0
+text = "Unit Type:"
+
+[node name="MovesLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 194.0
+offset_right = 90.0
+offset_bottom = 217.0
+text = "Moves: "
+
+[node name="HealthLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 221.0
+offset_right = 89.0
+offset_bottom = 244.0
+text = "HP: "
