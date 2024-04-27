@@ -18,9 +18,10 @@ public partial class City : Node2D
 	public Civilization civ; // The civ this city belongs to
 	public List<Hex> territory; // The territory this city controls on the map (hex coordinates)
 
+	public List<Hex> borderTerritory; // Territory that is not totally surrounded by other territory of the civ. Used to increase efficiency.
 
 	// Gameplay constants
-	public int POPULATION_THRESHOLD_INCREASE = 20; // amount to increase the threshold each time population grows.
+	public int POPULATION_THRESHOLD_INCREASE = 0; // amount to increase the threshold each time population grows.
 
 	// City attributes
 	public string name; // Name of city to be displayed on the label
