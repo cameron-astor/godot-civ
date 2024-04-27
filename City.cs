@@ -111,9 +111,25 @@ public partial class City : Node2D
 		}
 	}
 
-	public void GrowTerritory()
+	// Randomly adds a new tile to the city's territory.
+	// References the map to make sure the tile is in bounds,
+	// not on impassible terrain, etc.
+	// This is for population growth.
+	public void AddRandomNewTile()
 	{
+		// First, acquire all possible new tiles via map neighbors.
+		List<Vector2I> tilePool = new List<Vector2I>();
+		foreach (Vector2I territoryCoord in territory) // For every tile in territory
+		{
+			// Acquire neighbors
+			tilePool.AddRange(map.GetSurroundingCells(territoryCoord));
+		}
+
+		// Now that we have all of the neighbors, of all tiles, we need to filter out those that we don't
+		// want in the new tile pool.
+		// This includes: cells which belong to this civ already or to another civ, and tiles with impassible terrain.	
 		
+
 	}
 
 }

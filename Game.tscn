@@ -16,7 +16,6 @@ velocity = 40
 zoom_speed = 0.1
 
 [node name="HexTileMap" parent="." instance=ExtResource("4_1wtir")]
-scale = Vector2(1.00335, 1.01365)
 width = 84
 height = 54
 

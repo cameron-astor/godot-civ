@@ -8,15 +8,19 @@ public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, F
 public class Hex
 {
 
+	public readonly Vector2I coordinate; // The coordinate of this hex on the map. Should not change.
+
 	// Tile attributes
 	public TerrainType terrainType;
 	public int food;
 	public int production;
 
+	public Civilization owner;
 	
-	public Hex()
+	public Hex(Vector2I coord)
 	{
-
+		coordinate = coord;
+		owner = null;
 	}
 }
 
@@ -30,6 +34,7 @@ public partial class HexTileMap : TileMap
 	// Tile atlases
 	TileSetAtlasSource iconAtlas;
 	TileSetAtlasSource terrainAtlas;
+
 
 	// Signals
 	[Signal]
@@ -178,9 +183,7 @@ public partial class HexTileMap : TileMap
 				GD.Print("Terrain: " + mapData[mapCoords].terrainType);
 				GD.Print("Food: " + mapData[mapCoords].food);
 				GD.Print("Production: " + mapData[mapCoords].production);
-
 				GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
-				GD.Print(GetNeighborCell(mapCoords, TileSet.CellNeighbor.TopRightSide)); // Test of neighbor cell
 			} else { // Click off map occurred
 				EmitSignal(SignalName.ClickOffMap);
 				SetCell(3, currentSelectedCell, -1);
@@ -261,6 +264,7 @@ public partial class HexTileMap : TileMap
 		City city = cityScene.Instantiate() as City;
 		city.map = this; // Give city a reference to the map
 		civ.cities.Add(city); // Register city with civilization object
+		city.civ = civ;
 		// Attach to scene tree
 		AddChild(city);
 
@@ -275,10 +279,7 @@ public partial class HexTileMap : TileMap
 		// Convert map coords to local space coordinates to place city node.
 		city.Position = MapToLocal(coords);
 
-		foreach (Vector2I l in city.territory)
-		{
-			SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
-		}
+		UpdateCivTerritoryMap(civ);
 
 		cities[coords] = city; // Add to cities lookup table for map
 	}
@@ -306,6 +307,27 @@ public partial class HexTileMap : TileMap
 		}
 	}
 
+	// Iterates through all civs and cities,
+	// refreshing representation of territory
+	public void UpdateAllCivsTerritoryMap()
+	{
+		foreach (Civilization civ in civs)
+		{
+			UpdateCivTerritoryMap(civ);
+		}
+	}
+
+	// Updates the territory representation on the map for a single civilization
+	public void UpdateCivTerritoryMap(Civilization civ)
+	{
+		foreach (City c in civ.cities)
+		{
+			foreach (Vector2I l in c.territory)
+			{
+				SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
+			}
+		}
+	}
 
 	///////////////////////////////////
 	// TILE RESOURCES AND ATTRIBUTES //
@@ -466,7 +488,7 @@ public partial class HexTileMap : TileMap
 			for (int y = 0; y < height; y++)
 			{
 				// Create new hex
-				Hex h = new Hex();
+				Hex h = new Hex(new Vector2I(x, y));
 				float noiseValue = noiseMap[x, y];
 
 				// Get basic terrain type from Perlin noise
@@ -561,5 +583,15 @@ public partial class HexTileMap : TileMap
 	public Hex GetHex(Vector2I coords)
 	{
 		return mapData[coords];
+	}
+
+	// Returns whether a given coordinate is in bounds of the map.
+	public bool HexInBounds(Vector2I coords)
+	{
+		if (coords.X < 0 || coords.X > width ||
+			coords.Y < 0 || coords.Y > height)
+			return false;
+
+		return true;
 	}
 }
