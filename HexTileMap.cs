@@ -20,35 +20,6 @@ public class Hex
 	}
 }
 
-// Represents a single civilization present
-// in the game. Civilizations have
-// cities, and units.
-// The territory of a civilization is identical to 
-// the combined territories of all its cities.
-public class Civilization 
-{
-
-	public int id;
-	public List<City> cities;
-	public Color territoryColor;
-	public int territoryColorAltTileId;
-	public Color iconColor;
-	public string name;
-	public bool playerCiv;
-
-	public Civilization()
-	{
-		cities = new List<City>();
-	}
-
-	public void SetRandomColor()
-	{
-		Random r = new Random();
-		territoryColor = new Color(r.Next(255)/255.0f, r.Next(255)/255.0f, r.Next(255)/255.0f);
-	}
-
-}
-
 public partial class HexTileMap : TileMap
 {
 
