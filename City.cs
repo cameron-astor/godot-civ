@@ -16,7 +16,7 @@ public partial class City : Node2D
 
 	public Vector2I centerCoordinates; // Coordinates in grid hexes of the city center
 	public Civilization civ; // The civ this city belongs to
-	public List<Vector2I> territory; // The territory this city controls on the map (hex coordinates)
+	public List<Hex> territory; // The territory this city controls on the map (hex coordinates)
 
 
 	// Gameplay constants
@@ -50,7 +50,7 @@ public partial class City : Node2D
 		label.Text = name;
 
 		// Gameplay data
-		territory = new List<Vector2I>();
+		territory = new List<Hex>();
 
 		population = 1; // Default starting population
 		populationGrowthThreshold = 20; // Default starting growth threshold
@@ -61,11 +61,17 @@ public partial class City : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		
+		ProcessTurn();
 	}
 
-	public void AddTerritory(List<Vector2I> territoryToAdd)
+	public void AddTerritory(List<Hex> territoryToAdd)
 	{
+		foreach (Hex h in territoryToAdd) // Set ownership of hex
+		{
+			h.ownerCity = this;
+			h.ownerCiv = this.civ;
+		}
+
 		territory.AddRange(territoryToAdd);
 		CalculateTerritoryResourceTotals();
 	}
@@ -87,9 +93,8 @@ public partial class City : Node2D
 	{
 		totalFood = 0;
 		totalProduction = 0;
-		foreach (Vector2I coord in territory)
+		foreach (Hex h in territory)
 		{
-			Hex h = map.GetHex(coord);
 			totalFood += h.food;
 			totalProduction += h.production;
 		}
@@ -108,6 +113,8 @@ public partial class City : Node2D
 			populationGrowthThreshold += POPULATION_THRESHOLD_INCREASE; // Increase threshold
 
 			// Grow territory
+			AddRandomNewTile();
+			map.UpdateCivTerritoryMap(civ);
 		}
 	}
 
@@ -118,17 +125,49 @@ public partial class City : Node2D
 	public void AddRandomNewTile()
 	{
 		// First, acquire all possible new tiles via map neighbors.
-		List<Vector2I> tilePool = new List<Vector2I>();
-		foreach (Vector2I territoryCoord in territory) // For every tile in territory
+		List<Hex> tilePool = new List<Hex>();
+		foreach (Hex h in territory) // For every tile in territory
 		{
 			// Acquire neighbors
-			tilePool.AddRange(map.GetSurroundingCells(territoryCoord));
+			List<Hex> neighbors = map.GetSurroundingHexes(h.coordinate);
+
+			// Now that we have all of the neighbors, of all tiles, we need to filter out those that we don't
+			// want in the new tile pool.
+			// This includes: cells which belong to this civ already or to another civ, and tiles with impassible terrain.	
+
+			foreach (Hex n in neighbors)
+			{
+				bool validHex = true;
+
+				if ( n.terrainType == TerrainType.WATER || 
+					 n.terrainType == TerrainType.ICE || 
+					 n.terrainType == TerrainType.SHALLOW_WATER || 
+					 n.terrainType == TerrainType.MOUNTAIN ) // Check that hex is valid terrain
+				{
+					 validHex = false;
+				}
+
+				if ( n.ownerCiv != null && n.ownerCity != null) // Check that hex is not already owned
+					validHex = false;
+
+				if ( !map.HexInBounds(n.coordinate) ) // Check that hex is in map bounds
+					validHex = false;
+
+
+				if (validHex) { tilePool.Add(n); } // If after all the checks the hex is still valid, add to pool.
+			}
+
 		}
 
-		// Now that we have all of the neighbors, of all tiles, we need to filter out those that we don't
-		// want in the new tile pool.
-		// This includes: cells which belong to this civ already or to another civ, and tiles with impassible terrain.	
-		
+		// Now that we have valid choices, randomly select one.
+		if (tilePool.Count > 0)
+		{
+			Random r = new Random();
+			this.territory.Add(tilePool[r.Next(tilePool.Count)]);
+		} else {
+			GD.Print("No possible tiles to add. " + this.name);
+		}
+
 
 	}
 

@@ -15,12 +15,14 @@ public class Hex
 	public int food;
 	public int production;
 
-	public Civilization owner;
+	public Civilization ownerCiv;
+	public City ownerCity;
 	
 	public Hex(Vector2I coord)
 	{
 		coordinate = coord;
-		owner = null;
+		ownerCiv = null;
+		ownerCity = null;
 	}
 }
 
@@ -273,8 +275,8 @@ public partial class HexTileMap : TileMap
 		city.SetName(name);
 
 		city.centerCoordinates = coords;
-		city.AddTerritory(new List<Vector2I>{coords}); // Add city center coordinate
-		city.AddTerritory(GetSurroundingCells(coords).ToList()); // Add starting surrounding tiles
+		city.AddTerritory(new List<Hex>{mapData[coords]}); // Add city center coordinate
+		city.AddTerritory(GetSurroundingHexes(coords)); // Add starting surrounding tiles
 
 		// Convert map coords to local space coordinates to place city node.
 		city.Position = MapToLocal(coords);
@@ -282,6 +284,21 @@ public partial class HexTileMap : TileMap
 		UpdateCivTerritoryMap(civ);
 
 		cities[coords] = city; // Add to cities lookup table for map
+	}
+
+	// Like GetSurroundingCells(), but returns the Hex objects for those cells
+	// instead of just coordinates.
+	// Will throw out coordinates that are not in map bounds
+	public List<Hex> GetSurroundingHexes(Vector2I coords)
+	{
+		List<Hex> result = new List<Hex>();
+		foreach (Vector2I coord in GetSurroundingCells(coords))
+		{
+			if (HexInBounds(coord))
+				result.Add(mapData[coord]);
+		}
+
+		return result;
 	}
 
 	public void GenerateAICivs()
@@ -322,9 +339,9 @@ public partial class HexTileMap : TileMap
 	{
 		foreach (City c in civ.cities)
 		{
-			foreach (Vector2I l in c.territory)
+			foreach (Hex h in c.territory)
 			{
-				SetCell(2, l, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
+				SetCell(2, h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 			}
 		}
 	}
@@ -588,8 +605,8 @@ public partial class HexTileMap : TileMap
 	// Returns whether a given coordinate is in bounds of the map.
 	public bool HexInBounds(Vector2I coords)
 	{
-		if (coords.X < 0 || coords.X > width ||
-			coords.Y < 0 || coords.Y > height)
+		if (coords.X < 0 || coords.X >= width ||
+			coords.Y < 0 || coords.Y >= height)
 			return false;
 
 		return true;
