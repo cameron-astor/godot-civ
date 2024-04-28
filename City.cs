@@ -18,7 +18,8 @@ public partial class City : Node2D
 	public Civilization civ; // The civ this city belongs to
 	public List<Hex> territory; // The territory this city controls on the map (hex coordinates)
 
-	public List<Hex> borderTerritory; // Territory that is not totally surrounded by other territory of the civ. Used to increase efficiency.
+	public List<Hex> borderTilePool; // Potential tiles for expansion. Cached for efficiency.
+	
 
 	// Gameplay constants
 	public int POPULATION_THRESHOLD_INCREASE = 0; // amount to increase the threshold each time population grows.
@@ -52,6 +53,7 @@ public partial class City : Node2D
 
 		// Gameplay data
 		territory = new List<Hex>();
+		borderTilePool = new List<Hex>();
 
 		population = 1; // Default starting population
 		populationGrowthThreshold = 20; // Default starting growth threshold
@@ -71,6 +73,10 @@ public partial class City : Node2D
 		{
 			h.ownerCity = this;
 			h.ownerCiv = this.civ;
+
+			// Add new border hexes to border tile pool
+			AddValidNeighborsToBorderPool(h);
+
 		}
 
 		territory.AddRange(territoryToAdd);
@@ -125,51 +131,49 @@ public partial class City : Node2D
 	// This is for population growth.
 	public void AddRandomNewTile()
 	{
-		// First, acquire all possible new tiles via map neighbors.
-		List<Hex> tilePool = new List<Hex>();
-		foreach (Hex h in territory) // For every tile in territory
-		{
-			// Acquire neighbors
-			List<Hex> neighbors = map.GetSurroundingHexes(h.coordinate);
-
-			// Now that we have all of the neighbors, of all tiles, we need to filter out those that we don't
-			// want in the new tile pool.
-			// This includes: cells which belong to this civ already or to another civ, and tiles with impassible terrain.	
-
-			foreach (Hex n in neighbors)
-			{
-				bool validHex = true;
-
-				if ( n.terrainType == TerrainType.WATER || 
-					 n.terrainType == TerrainType.ICE || 
-					 n.terrainType == TerrainType.SHALLOW_WATER || 
-					 n.terrainType == TerrainType.MOUNTAIN ) // Check that hex is valid terrain
-				{
-					 validHex = false;
-				}
-
-				if ( n.ownerCiv != null && n.ownerCity != null) // Check that hex is not already owned
-					validHex = false;
-
-				if ( !map.HexInBounds(n.coordinate) ) // Check that hex is in map bounds
-					validHex = false;
-
-
-				if (validHex) { tilePool.Add(n); } // If after all the checks the hex is still valid, add to pool.
-			}
-
-		}
-
-		// Now that we have valid choices, randomly select one.
-		if (tilePool.Count > 0)
+		if (borderTilePool.Count > 0)
 		{
 			Random r = new Random();
-			this.territory.Add(tilePool[r.Next(tilePool.Count)]);
+			int index = r.Next(borderTilePool.Count);
+			this.AddTerritory( new List<Hex>{borderTilePool[index]} );
+			borderTilePool.RemoveAt(index);
 		} else {
 			GD.Print("No possible tiles to add. " + this.name);
 		}
+	}
 
+	public bool IsValidNeighborTile(Hex n)
+	{
+		if ( n.terrainType == TerrainType.WATER || 
+			n.terrainType == TerrainType.ICE || 
+			n.terrainType == TerrainType.SHALLOW_WATER || 
+			n.terrainType == TerrainType.MOUNTAIN ) // Check that hex is valid terrain
+		{
+			return false;
+		}
 
+		if ( n.ownerCiv != null && n.ownerCity != null) // Check that hex is not already owned
+			return false;
+
+		if ( !map.HexInBounds(n.coordinate) ) // Check that hex is in map bounds
+			return false;
+
+		return true;
+	}
+
+	public void AddValidNeighborsToBorderPool(Hex h)
+	{
+		// Acquire neighbors
+		List<Hex> neighbors = map.GetSurroundingHexes(h.coordinate);
+
+		// Now that we have all of the neighbors, of all tiles, we need to filter out those that we don't
+		// want in the new tile pool.
+		// This includes: cells which belong to this civ already or to another civ, and tiles with impassible terrain.	
+
+		foreach (Hex n in neighbors)
+		{
+			if (IsValidNeighborTile(n)) { borderTilePool.Add(n); } // If after all the checks the hex is still valid, add to pool.
+		}		
 	}
 
 }
