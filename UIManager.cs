@@ -12,7 +12,7 @@ public partial class UIManager : Node
 	// City UI TODO
 	TerrainTileUI terrainUi;
 	CityUI cityUI;
-	Panel unitUi;
+	UnitUI unitUi;
 	Panel generalUi;
 
 
@@ -22,7 +22,7 @@ public partial class UIManager : Node
 		// Get UI panels
 		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
 		cityUI = (CityUI) GetNode<Control>("CityUI");
-		unitUi = GetNode<Panel>("UnitUi");
+		unitUi = (UnitUI) GetNode<Panel>("UnitUi");
 		generalUi = GetNode<Panel>("GeneralUi");
 	}
 
@@ -52,5 +52,12 @@ public partial class UIManager : Node
 		HideAllPopups();
 		cityUI.SetCityUI(c);
 		cityUI.Visible = true;
+	}
+
+	public void SetUnitUI(Unit u)
+	{
+		HideAllPopups();
+		unitUi.UpdateUnitUI(u);
+		unitUi.Visible = true;
 	}
 }

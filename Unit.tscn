@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://b1w6qyc1lkgai"]
+[gd_scene load_steps=4 format=3 uid="uid://b1w6qyc1lkgai"]
 
 [ext_resource type="Script" path="res://Unit.cs" id="1_4ks37"]
 [ext_resource type="Texture2D" uid="uid://613260kp638s" path="res://textures/settler.png" id="1_6ppyt"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ctcum"]
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_4ks37")
@@ -9,3 +11,10 @@ script = ExtResource("1_4ks37")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, 2)
 texture = ExtResource("1_6ppyt")
+
+[node name="Area2D" type="Area2D" parent="Sprite2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/Area2D"]
+position = Vector2(1, -2)
+scale = Vector2(3.5, 3.5)
+shape = SubResource("CircleShape2D_ctcum")

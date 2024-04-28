@@ -138,7 +138,7 @@ public partial class City : Node2D
 			this.AddTerritory( new List<Hex>{borderTilePool[index]} );
 			borderTilePool.RemoveAt(index);
 		} else {
-			GD.Print("No possible tiles to add. " + this.name);
+			// GD.Print("No possible tiles to add. " + this.name);
 		}
 	}
 

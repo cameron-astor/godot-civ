@@ -7,9 +7,16 @@ public partial class Game : Node
 	[Export]
 	FastNoiseLite noise; // For testing purposes only
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+    public override void _EnterTree()
+    {
+		// Load unit textures
+		Unit.LoadTextures();
+    }
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
 	{
+
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
