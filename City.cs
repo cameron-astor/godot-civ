@@ -19,6 +19,7 @@ public partial class City : Node2D
 	public List<Hex> territory; // The territory this city controls on the map (hex coordinates)
 
 	public List<Hex> borderTilePool; // Potential tiles for expansion. Cached for efficiency.
+
 	
 
 	// Gameplay constants
@@ -26,6 +27,13 @@ public partial class City : Node2D
 
 	// City attributes
 	public string name; // Name of city to be displayed on the label
+
+
+	// Units
+	public List<Unit> unitBuildQueue; // Queue of units to be built
+	public Unit currentUnitBeingBuilt;
+	public int unitBuildTracker;
+
 
 	// Population
 	public int population; // City population
@@ -54,10 +62,13 @@ public partial class City : Node2D
 		// Gameplay data
 		territory = new List<Hex>();
 		borderTilePool = new List<Hex>();
+		unitBuildQueue = new List<Unit>();
 
 		population = 1; // Default starting population
 		populationGrowthThreshold = 20; // Default starting growth threshold
 		populationGrowthTracker = 0; // Start growth tracker at 0
+
+		unitBuildTracker = 0;
 
 	}
 
@@ -122,6 +133,9 @@ public partial class City : Node2D
 			// Grow territory
 			AddRandomNewTile();
 			map.UpdateCivTerritoryMap(civ);
+
+			// Work on building units
+			ProcessUnitBuildQueue();
 		}
 	}
 
@@ -174,6 +188,53 @@ public partial class City : Node2D
 		{
 			if (IsValidNeighborTile(n)) { borderTilePool.Add(n); } // If after all the checks the hex is still valid, add to pool.
 		}		
+	}
+
+	// During turn processing, units in the build queue will be processed.
+	//
+	// If after adding all city production to the current build progress,
+	// the unit's build cost is not met or exceeded, performs the addition and does nothing else.
+	//
+	// If after adding production, the unit's build cost IS met or exceeded, spawns the unit, 
+	// queues up the next unit (if there is one), and adds the remainder of production not spent
+	// on the first unit to the build progress of the next unit (if there is one).
+	//
+	// If there are no units in the build queue, does nothing.
+	public void ProcessUnitBuildQueue()
+	{
+		if (unitBuildQueue.Count > 0) // If there are units to process, do nothing.
+		{
+			// A new unit is added to the queue
+			if (currentUnitBeingBuilt == null) 
+			{
+				currentUnitBeingBuilt = unitBuildQueue[0]; 
+			}
+
+			unitBuildTracker += totalProduction; // Add city production to unit build tracker
+
+			if (unitBuildTracker >= currentUnitBeingBuilt.productionRequired) // if the unit finishes building
+			{
+				// Spawn unit
+
+
+				// Adjust queue
+				unitBuildQueue.RemoveAt(0); // remove the current unit
+				currentUnitBeingBuilt = null; // reset current unit being built
+
+			} // If the unit is not finished yet, nothing else needs to be done.
+		}
+	}
+
+	public void SpawnUnit(Unit u)
+	{
+		
+	}
+
+	// TODO: Replace with UnitType. UI should not need to know anything about units.
+	// Maybe store another static mapping in the Unit class for this.
+	public void AddUnitToBuildQueue(Unit u)
+	{
+		unitBuildQueue.Add(u);
 	}
 
 }

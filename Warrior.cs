@@ -15,6 +15,7 @@ public partial class Warrior : Unit
         hp = 3;
         movePoints = 1;
         maxMovePoints = 1;
+		productionRequired = 50;
 
         GD.Print("Warrior instantiated!");
         GD.Print(ui_images[unitType]);
@@ -24,6 +25,6 @@ public partial class Warrior : Unit
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-		
+
 	}
 }

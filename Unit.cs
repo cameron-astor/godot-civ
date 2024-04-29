@@ -29,6 +29,8 @@ public partial class Unit : Node2D
 	public int hp;
 	public int maxMovePoints;
 	public int movePoints;
+	public int productionRequired;
+	public Vector2I coords = new Vector2I();
 
 
 	// Loads unit textures for all derived classes to use.
@@ -51,6 +53,10 @@ public partial class Unit : Node2D
 		texturesLoaded = true;
 	}
 
+	public static void GetUnitTypesAndNames()
+	{
+		
+	}
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -66,7 +72,7 @@ public partial class Unit : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (Input.IsActionJustPressed("left_click")) 
+		if (Input.IsActionJustPressed("left_click")) // Check for mouse clicks on unit
 		{
 			var spaceState = GetWorld2D().DirectSpaceState;
 			var point = new PhysicsPointQueryParameters2D();

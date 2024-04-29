@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://cpcpycvqqkwks"]
+[gd_scene load_steps=5 format=3 uid="uid://cpcpycvqqkwks"]
 
 [ext_resource type="Script" path="res://CityUI.cs" id="1_h5n3o"]
 [ext_resource type="Texture2D" uid="uid://08l077vyraqm" path="res://textures/city_painting.jpg" id="2_undxm"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_rv4x4"]
 font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_s7sbt"]
+font_size = 20
 
 [node name="CityUI" type="Control"]
 layout_mode = 3
@@ -59,3 +62,51 @@ offset_top = 273.0
 offset_right = 106.0
 offset_bottom = 296.0
 text = "Production: "
+
+[node name="BuildLabel" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 325.0
+offset_right = 124.0
+offset_bottom = 353.0
+text = "Build"
+label_settings = SubResource("LabelSettings_s7sbt")
+
+[node name="UnitBuildButtons" type="ScrollContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 364.0
+offset_right = 232.0
+offset_bottom = 417.0
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/UnitBuildButtons"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="Panel/UnitBuildButtons/VBoxContainer"]
+layout_mode = 2
+text = "Settler"
+
+[node name="Button2" type="Button" parent="Panel/UnitBuildButtons/VBoxContainer"]
+layout_mode = 2
+text = "Warrior
+"
+
+[node name="QueueLabel" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 437.0
+offset_right = 123.0
+offset_bottom = 465.0
+text = "Queue"
+label_settings = SubResource("LabelSettings_s7sbt")
+
+[node name="QueueContainer" type="ScrollContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 475.0
+offset_right = 232.0
+offset_bottom = 562.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/QueueContainer"]
+layout_mode = 2

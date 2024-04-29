@@ -14,6 +14,7 @@ public class Civilization
 
 	public int id;
 	public List<City> cities;
+	public List<Unit> units;
 	public Color territoryColor;
 	public int territoryColorAltTileId;
 	public Color iconColor;
@@ -23,6 +24,7 @@ public class Civilization
 	public Civilization()
 	{
 		cities = new List<City>();
+		units = new List<Unit>();
 	}
 
 	public void SetRandomColor()

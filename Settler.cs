@@ -16,6 +16,7 @@ public partial class Settler : Unit
         hp = 1;
         movePoints = 2;
         maxMovePoints = 2;
+        productionRequired = 100;
 
         GD.Print("Settler instantiated!");
         GD.Print(ui_images[unitType]);
