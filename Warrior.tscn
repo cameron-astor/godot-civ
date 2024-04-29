@@ -1,13 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://b0uyqnqjknjpn"]
+[gd_scene load_steps=4 format=3 uid="uid://b0uyqnqjknjpn"]
 
 [ext_resource type="PackedScene" uid="uid://b1w6qyc1lkgai" path="res://Unit.tscn" id="1_yw10e"]
 [ext_resource type="Texture2D" uid="uid://ba4gdxn5hn5tk" path="res://textures/warrior.png" id="2_54p1f"]
+[ext_resource type="Script" path="res://Warrior.cs" id="2_toyhq"]
 
 [node name="Unit" instance=ExtResource("1_yw10e")]
+script = ExtResource("2_toyhq")
 
 [node name="Sprite2D" parent="." index="0"]
 position = Vector2(2, 4)
 texture = ExtResource("2_54p1f")
 
-[node name="CollisionShape2D" parent="Sprite2D/Area2D" index="0"]
+[node name="UnitCollider" parent="Sprite2D/Area2D" index="0"]
 position = Vector2(-1, -3)
