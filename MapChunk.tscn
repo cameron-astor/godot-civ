@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dprq6w2hg8fma"]
-
-[ext_resource type="Script" path="res://MapChunk.cs" id="1_bftem"]
-
-[node name="MapChunk" type="Node2D"]
-script = ExtResource("1_bftem")

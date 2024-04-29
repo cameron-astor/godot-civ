@@ -147,7 +147,7 @@ public partial class HexTileMap : TileMap
 		// Send signal to camera to center on player city to start.
 		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
 
-		AddChild(ResourceLoader.Load<PackedScene>("res://Warrior.tscn").Instantiate());
+		AddChild(ResourceLoader.Load<PackedScene>("res://Settler.tscn").Instantiate());
 
 	}
 
