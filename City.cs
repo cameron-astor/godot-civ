@@ -230,6 +230,8 @@ public partial class City : Node2D
 	{
 		Unit unitToSpawn = (Unit) Unit.unitSceneResources[u.GetType()].Instantiate();
 		unitToSpawn.Position = map.MapToLocal(this.centerCoordinates);
+		unitToSpawn.SetCiv(this.civ);
+
 		map.AddChild(unitToSpawn); 
 	}
 

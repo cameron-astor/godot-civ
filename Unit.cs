@@ -64,6 +64,15 @@ public partial class Unit : Node2D
 		};
 	}
 
+	// Sets the unit's ownership to a certain faction and colors the unit accordingly
+	public void SetCiv(Civilization civ)
+	{
+		this.civ = civ;
+		
+		// Set color
+		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
+	}
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{

@@ -17,7 +17,6 @@ public class Civilization
 	public List<Unit> units;
 	public Color territoryColor;
 	public int territoryColorAltTileId;
-	public Color iconColor;
 	public string name;
 	public bool playerCiv;
 
