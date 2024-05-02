@@ -33,6 +33,9 @@ public partial class Unit : Node2D
 	public Vector2I coords = new Vector2I();
 
 
+	public static Dictionary<Type, PackedScene> unitSceneResources;
+
+
 	// Loads unit textures for all derived classes to use.
 	public static void LoadTextures()
 	{
@@ -53,9 +56,12 @@ public partial class Unit : Node2D
 		texturesLoaded = true;
 	}
 
-	public static void GetUnitTypesAndNames()
+	public static void LoadUnitScenes()
 	{
-		
+		unitSceneResources = new Dictionary<Type, PackedScene> {
+			{ typeof(Settler), ResourceLoader.Load<PackedScene>("res://Settler.tscn") },
+			{ typeof(Warrior), ResourceLoader.Load<PackedScene>("res://Warrior.tscn") }
+		};
 	}
 
 	// Called when the node enters the scene tree for the first time.

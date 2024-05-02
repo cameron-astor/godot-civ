@@ -3,11 +3,9 @@ using System;
 
 public partial class Warrior : Unit
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-		base._Ready(); // Unit shared setup code
 
+	public Warrior()
+	{
         unitType = UnitType.WARRIOR;
         unitName = "Warrior";
 
@@ -16,8 +14,14 @@ public partial class Warrior : Unit
         movePoints = 1;
         maxMovePoints = 1;
 		productionRequired = 50;
+	}
 
-        GD.Print("Warrior instantiated!");
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		base._Ready(); // Unit shared setup code
+
+        GD.Print("Warrior entered scene tree!");
         GD.Print(ui_images[unitType]);
 	}
 

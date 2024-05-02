@@ -4,28 +4,34 @@ using System.Collections.Generic;
 
 public partial class Settler : Unit
 {
+
+        public Settler()
+        {
+                unitType = UnitType.SETTLER;
+                unitName = "Settler";
+
+                maxHp = 1;
+                hp = 1;
+                movePoints = 2;
+                maxMovePoints = 2;
+                productionRequired = 100;
+        }
+
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-        base._Ready(); // Unit shared setup code
+                base._Ready(); // Unit shared setup code
 
-        unitType = UnitType.SETTLER;
-        unitName = "Settler";
 
-        maxHp = 1;
-        hp = 1;
-        movePoints = 2;
-        maxMovePoints = 2;
-        productionRequired = 100;
-
-        GD.Print("Settler instantiated!");
-        GD.Print(ui_images[unitType]);
+                GD.Print("Settler entered scene tree!");
+                GD.Print(ui_images[unitType]);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-        base._Process(delta);
+                base._Process(delta);
 	}
 
 }

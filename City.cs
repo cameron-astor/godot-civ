@@ -196,8 +196,7 @@ public partial class City : Node2D
 	// the unit's build cost is not met or exceeded, performs the addition and does nothing else.
 	//
 	// If after adding production, the unit's build cost IS met or exceeded, spawns the unit, 
-	// queues up the next unit (if there is one), and adds the remainder of production not spent
-	// on the first unit to the build progress of the next unit (if there is one).
+	// queues up the next unit (if there is one).
 	//
 	// If there are no units in the build queue, does nothing.
 	public void ProcessUnitBuildQueue()
@@ -215,11 +214,13 @@ public partial class City : Node2D
 			if (unitBuildTracker >= currentUnitBeingBuilt.productionRequired) // if the unit finishes building
 			{
 				// Spawn unit
-
+				SpawnUnit(currentUnitBeingBuilt);
 
 				// Adjust queue
 				unitBuildQueue.RemoveAt(0); // remove the current unit
 				currentUnitBeingBuilt = null; // reset current unit being built
+
+				unitBuildTracker = 0; // Reset build tracker
 
 			} // If the unit is not finished yet, nothing else needs to be done.
 		}
@@ -227,7 +228,9 @@ public partial class City : Node2D
 
 	public void SpawnUnit(Unit u)
 	{
-		
+		Unit unitToSpawn = (Unit) Unit.unitSceneResources[u.GetType()].Instantiate();
+		unitToSpawn.Position = map.ToLocal(this.centerCoordinates);
+		map.AddChild(unitToSpawn); 
 	}
 
 	// TODO: Replace with UnitType. UI should not need to know anything about units.

@@ -153,10 +153,9 @@ public partial class HexTileMap : TileMap
 
 	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		if (Input.IsActionJustPressed("left_click")) { // Map controls
+    public override void _UnhandledInput(InputEvent @event)
+    {
+		if (@event is InputEventMouseButton mouse && mouse.ButtonMask == MouseButtonMask.Left) { // Map mouse controls
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
 
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height) // If click is in bounds of the map
@@ -192,9 +191,13 @@ public partial class HexTileMap : TileMap
 				EmitSignal(SignalName.ClickOffMap);
 				SetCell(3, currentSelectedCell, -1);
 			}
-
-
 		}
+    }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
+	{
+
 	}
 
 	// Generates valid starting locations for a given number of civilizations to be placed in

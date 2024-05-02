@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://o702ddtkc2t8"]
+
+[ext_resource type="Script" path="res://UnitBuildButton.cs" id="1_d4s13"]
+
+[node name="UnitBuildButton" type="Button"]
+text = "Settler"
+script = ExtResource("1_d4s13")

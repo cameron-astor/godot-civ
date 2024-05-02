@@ -9,8 +9,9 @@ public partial class Game : Node
 
     public override void _EnterTree()
     {
-		// Load unit textures
+		// Load unit textures and scenes
 		Unit.LoadTextures();
+		Unit.LoadUnitScenes();
     }
 
     // Called when the node enters the scene tree for the first time.
