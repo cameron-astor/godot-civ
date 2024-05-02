@@ -147,7 +147,7 @@ public partial class HexTileMap : TileMap
 		// Send signal to camera to center on player city to start.
 		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
 
-		AddChild(ResourceLoader.Load<PackedScene>("res://Settler.tscn").Instantiate()); // TEST
+		// AddChild(ResourceLoader.Load<PackedScene>("res://Settler.tscn").Instantiate()); // TEST
 
 	}
 
@@ -182,17 +182,31 @@ public partial class HexTileMap : TileMap
 
 				currentSelectedCell = mapCoords; // Update current
 
-				GD.Print("Coordinates: " + mapCoords);
-				GD.Print("Terrain: " + mapData[mapCoords].terrainType);
-				GD.Print("Food: " + mapData[mapCoords].food);
-				GD.Print("Production: " + mapData[mapCoords].production);
-				GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
+				// GD.Print("Coordinates: " + mapCoords);
+				// GD.Print("Terrain: " + mapData[mapCoords].terrainType);
+				// GD.Print("Food: " + mapData[mapCoords].food);
+				// GD.Print("Production: " + mapData[mapCoords].production);
+				// GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
+
 			} else { // Click off map occurred
 				EmitSignal(SignalName.ClickOffMap);
-				SetCell(3, currentSelectedCell, -1);
+				DeselectCurrentCell();
 			}
 		}
     }
+
+	// Deselects the current selected cell visually
+	public void DeselectCurrentCell()
+	{
+		SetCell(3, currentSelectedCell, -1);
+	}
+
+	// Overload for compatibility with unit click event
+	public void DeselectCurrentCell(Unit u = null)
+	{
+		SetCell(3, currentSelectedCell, -1);
+	}
+
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)

@@ -9,6 +9,10 @@ using System;
 /// </summary>
 public partial class UIManager : Node
 {
+
+	// Packed scenes
+	PackedScene cityUiScene;
+
 	// City UI TODO
 	TerrainTileUI terrainUi;
 	CityUI cityUI;
@@ -19,6 +23,9 @@ public partial class UIManager : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+
+		cityUiScene = ResourceLoader.Load<PackedScene>("CityUI.tscn");
+
 		// Get UI panels
 		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
 		cityUI = (CityUI) GetNode<Control>("CityUI");
@@ -50,6 +57,11 @@ public partial class UIManager : Node
 	public void SetCityUI(City c)
 	{
 		HideAllPopups();
+
+		cityUI.QueueFree(); // destroy current city ui
+
+		cityUI = (CityUI) cityUiScene.Instantiate(); // Create new city ui
+		AddChild(cityUI);
 		cityUI.SetCityUI(c);
 		cityUI.Visible = true;
 	}

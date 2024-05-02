@@ -14,7 +14,7 @@ public partial class Settler : Unit
                 hp = 1;
                 movePoints = 2;
                 maxMovePoints = 2;
-                productionRequired = 100;
+                productionRequired = 10000; // test
         }
 
 
@@ -24,8 +24,8 @@ public partial class Settler : Unit
                 base._Ready(); // Unit shared setup code
 
 
-                GD.Print("Settler entered scene tree!");
-                GD.Print(ui_images[unitType]);
+                // GD.Print("Settler entered scene tree!");
+                // GD.Print(ui_images[unitType]);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

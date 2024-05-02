@@ -33,7 +33,7 @@ public partial class CityUI : Control
 		food.Text = "Food: " + city.totalFood;
 		production.Text = "Production: " + city.totalProduction;
 
-		ConnectUnitBuildSignals(city);
+		ConnectUnitBuildSignals(city); // This is why we should destroy and remake the UIs every time!!
 	}
 
 	// Connects button press signals in city UI to the relevant city
@@ -51,6 +51,10 @@ public partial class CityUI : Control
 
 		UnitBuildButton warriorButton = buttons.GetNode<UnitBuildButton>("WarriorButton");
 		warriorButton.u = new Warrior();
+
+		// Attach signals to city unit queue
+		settlerButton.OnPressed += city.AddUnitToBuildQueue;
+		warriorButton.OnPressed += city.AddUnitToBuildQueue;
 
 	}
 

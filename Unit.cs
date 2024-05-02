@@ -72,13 +72,13 @@ public partial class Unit : Node2D
 
 		// Connect signal to UIManager
 		this.UnitClicked += manager.SetUnitUI;
+		this.UnitClicked += GetNode<HexTileMap>("/root/Game/HexTileMap").DeselectCurrentCell;
 		
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		if (Input.IsActionJustPressed("left_click")) // Check for mouse clicks on unit
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton mouse && mouse.ButtonMask == MouseButtonMask.Left)
 		{
 			var spaceState = GetWorld2D().DirectSpaceState;
 			var point = new PhysicsPointQueryParameters2D();
@@ -88,8 +88,26 @@ public partial class Unit : Node2D
 			if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
 			{
 				EmitSignal(SignalName.UnitClicked, this);
-			}
-
+				GetViewport().SetInputAsHandled(); // Consume input
+			}			
 		}
+    }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
+	{
+		// if (Input.IsActionJustPressed("left_click")) // Check for mouse clicks on unit
+		// {
+		// 	var spaceState = GetWorld2D().DirectSpaceState;
+		// 	var point = new PhysicsPointQueryParameters2D();
+		// 	point.CollideWithAreas = true;
+		// 	point.Position = GetGlobalMousePosition();
+		// 	var result = spaceState.IntersectPoint(point);
+		// 	if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
+		// 	{
+		// 		EmitSignal(SignalName.UnitClicked, this);
+		// 	}
+
+		// }
 	}
 }

@@ -21,8 +21,8 @@ public partial class Warrior : Unit
 	{
 		base._Ready(); // Unit shared setup code
 
-        GD.Print("Warrior entered scene tree!");
-        GD.Print(ui_images[unitType]);
+        // GD.Print("Warrior entered scene tree!");
+        // GD.Print(ui_images[unitType]);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -229,7 +229,7 @@ public partial class City : Node2D
 	public void SpawnUnit(Unit u)
 	{
 		Unit unitToSpawn = (Unit) Unit.unitSceneResources[u.GetType()].Instantiate();
-		unitToSpawn.Position = map.ToLocal(this.centerCoordinates);
+		unitToSpawn.Position = map.MapToLocal(this.centerCoordinates);
 		map.AddChild(unitToSpawn); 
 	}
 
@@ -237,6 +237,7 @@ public partial class City : Node2D
 	// Maybe store another static mapping in the Unit class for this.
 	public void AddUnitToBuildQueue(Unit u)
 	{
+		GD.Print("Added to queue");
 		unitBuildQueue.Add(u);
 	}
 
