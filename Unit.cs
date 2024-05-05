@@ -73,13 +73,26 @@ public partial class Unit : Node2D
 		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
 	}
 
+	public void SetIconSelected()
+	{
+		Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
+		Color c = new Color(sprite.Modulate);
+		c.V = c.V - 0.25f;
+		sprite.Modulate = c;
+	}
+
+	public void SetIconDeselected()
+	{
+
+	}
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		collider = GetNode<Area2D>("Sprite2D/Area2D");
 		UIManager manager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
 
-		// Connect signal to UIManager
+		// Connect signals
 		this.UnitClicked += manager.SetUnitUI;
 		this.UnitClicked += GetNode<HexTileMap>("/root/Game/HexTileMap").DeselectCurrentCell;
 		
@@ -97,6 +110,7 @@ public partial class Unit : Node2D
 			if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
 			{
 				EmitSignal(SignalName.UnitClicked, this);
+				// SetIconSelected();
 				GetViewport().SetInputAsHandled(); // Consume input
 			}			
 		}
