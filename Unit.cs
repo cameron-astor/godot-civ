@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public enum UnitType { SETTLER, WARRIOR }
 
@@ -21,6 +22,13 @@ public partial class Unit : Node2D
 	// Unit collision area
 	Area2D collider;
 
+	// Map reference
+	public HexTileMap map;
+	public bool selected = false;
+
+	// Unit properties
+	public HashSet<TerrainType> impassible = new HashSet<TerrainType>(); // Terrain that is considered impassible by this unit.
+																		 // Default empty, so nothing impassible.
 	// Gameplay variables
 	public string unitName = "DEFAULT";
 	public UnitType unitType;
@@ -83,12 +91,15 @@ public partial class Unit : Node2D
 
 	public void SetIconDeselected()
 	{
-
+		// Set color
+		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
 	}
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		map = GetNode<HexTileMap>("/root/Game/HexTileMap");
+
 		collider = GetNode<Area2D>("Sprite2D/Area2D");
 		UIManager manager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
 
@@ -96,6 +107,18 @@ public partial class Unit : Node2D
 		this.UnitClicked += manager.SetUnitUI;
 		this.UnitClicked += GetNode<HexTileMap>("/root/Game/HexTileMap").DeselectCurrentCell;
 		
+	}
+
+	// Calculates the adjacent tiles that are currently valid for 
+	// moving this unit into.
+	public List<Hex> CalculateValidAdjacentMovementHexes()
+	{
+		List<Hex> hexes = new List<Hex>();
+
+		hexes.AddRange(map.GetSurroundingHexes(this.coords));
+		hexes = hexes.Where(h => !impassible.Contains(h.terrainType)).ToList(); // Filter out impassible terrain
+
+		return hexes;
 	}
 
     public override void _UnhandledInput(InputEvent @event)
@@ -110,9 +133,11 @@ public partial class Unit : Node2D
 			if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
 			{
 				EmitSignal(SignalName.UnitClicked, this);
-				// SetIconSelected();
+				SetIconSelected();
 				GetViewport().SetInputAsHandled(); // Consume input
-			}			
+			}	else {
+				SetIconDeselected(); // Unit not clicked
+			}		
 		}
     }
 

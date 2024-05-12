@@ -229,8 +229,9 @@ public partial class City : Node2D
 	public void SpawnUnit(Unit u)
 	{
 		Unit unitToSpawn = (Unit) Unit.unitSceneResources[u.GetType()].Instantiate();
-		unitToSpawn.Position = map.MapToLocal(this.centerCoordinates);
-		unitToSpawn.SetCiv(this.civ);
+		unitToSpawn.Position = map.MapToLocal(this.centerCoordinates); // Set unit sprite position in 2d coordinates
+		unitToSpawn.SetCiv(this.civ); // Set unit owner
+		unitToSpawn.coords = this.centerCoordinates; // Set unit hex coordinates
 
 		map.AddChild(unitToSpawn); 
 	}

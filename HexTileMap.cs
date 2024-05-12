@@ -76,6 +76,8 @@ public partial class HexTileMap : TileMap
 	// GAMEPLAY DATA
 	List<Civilization> civs;
 	Dictionary<Vector2I, City> cities;
+
+	Unit currentSelectedUnit;
 	
 
 	// Called when the node enters the scene tree for the first time.
@@ -146,8 +148,6 @@ public partial class HexTileMap : TileMap
 		// CAMERA ETC SETUP
 		// Send signal to camera to center on player city to start.
 		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
-
-		// AddChild(ResourceLoader.Load<PackedScene>("res://Settler.tscn").Instantiate()); // TEST
 
 	}
 
