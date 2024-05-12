@@ -5,7 +5,7 @@ using System.Linq;
 
 public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, FOREST, BEACH, CIV_COLOR_BASE }
 
-public class Hex
+public partial class Hex
 {
 
 	public readonly Vector2I coordinate; // The coordinate of this hex on the map. Should not change.
@@ -49,6 +49,9 @@ public partial class HexTileMap : TileMap
 	[Signal]
 	public delegate void ClickOffMapEventHandler(); // Signals that a click off map has occurred
 
+	// Note this signal is in pure C# due to Hex not being a Godot variant type
+	public delegate void RightClickOnMapEventHandler(Hex h);
+	public event RightClickOnMapEventHandler RightClickOnMap;
 
 	/////////////////////
 	// GAME PARAMETERS //
@@ -155,44 +158,53 @@ public partial class HexTileMap : TileMap
 
     public override void _UnhandledInput(InputEvent @event)
     {
-		if (@event is InputEventMouseButton mouse && mouse.ButtonMask == MouseButtonMask.Left) { // Map mouse controls
+		if (@event is InputEventMouseButton mouse) { // Map mouse controls
 			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
 
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height) // If click is in bounds of the map
 			{
 				Hex h = mapData[mapCoords]; // Get the clicked hex
-
-				// Send signals for UI, etc.
-				
-				// If the tile is a city
-				// TODO: check if player city
-				if (cities.ContainsKey(mapCoords))
+				if (mouse.ButtonMask == MouseButtonMask.Left)
 				{
-					EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
-				} else { // Tile is not a city
-					EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+
+					// Send signals for UI, etc.
+					
+					// If the tile is a city
+					// TODO: check if player city
+					if (cities.ContainsKey(mapCoords))
+					{
+						EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
+					} else { // Tile is not a city
+						EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+					}
+
+
+					if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
+						SetCell(3, currentSelectedCell, -1);
+					}
+					
+					SetCell(3, mapCoords, 1, new Vector2I(0, 1));
+
+					currentSelectedCell = mapCoords; // Update current
+
+					// GD.Print("Coordinates: " + mapCoords);
+					// GD.Print("Terrain: " + mapData[mapCoords].terrainType);
+					// GD.Print("Food: " + mapData[mapCoords].food);
+					// GD.Print("Production: " + mapData[mapCoords].production);
+					// GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
 				}
 
-
-				if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
-					SetCell(3, currentSelectedCell, -1);
+				if (mouse.ButtonMask == MouseButtonMask.Right)
+				{
+					RightClickOnMap?.Invoke(h); // Emit right click on map signal (note this is raw C# and not the Godot system)
+					// The '?' notation checks that there are subscribers to the event to avoid null references.
 				}
-				
-				SetCell(3, mapCoords, 1, new Vector2I(0, 1));
-
-				currentSelectedCell = mapCoords; // Update current
-
-				// GD.Print("Coordinates: " + mapCoords);
-				// GD.Print("Terrain: " + mapData[mapCoords].terrainType);
-				// GD.Print("Food: " + mapData[mapCoords].food);
-				// GD.Print("Production: " + mapData[mapCoords].production);
-				// GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
 
 			} else { // Click off map occurred
 				EmitSignal(SignalName.ClickOffMap);
 				DeselectCurrentCell();
 			}
-		}
+		} 
     }
 
 	// Deselects the current selected cell visually

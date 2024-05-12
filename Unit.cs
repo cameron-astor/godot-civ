@@ -41,6 +41,9 @@ public partial class Unit : Node2D
 	public Vector2I coords = new Vector2I();
 
 
+	// Movement
+	List<Hex> validMovementHexes = new List<Hex>();
+
 	public static Dictionary<Type, PackedScene> unitSceneResources;
 
 
@@ -81,31 +84,49 @@ public partial class Unit : Node2D
 		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
 	}
 
-	public void SetIconSelected()
+	public void SetSelected()
 	{
+		selected = true;
+
+		// Calculate movement ranges ahead of time
+		validMovementHexes = CalculateValidAdjacentMovementHexes();
+
 		Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
 		Color c = new Color(sprite.Modulate);
 		c.V = c.V - 0.25f;
 		sprite.Modulate = c;
 	}
 
-	public void SetIconDeselected()
+	public void SetDeselected()
 	{
+		selected = false;
+
+		validMovementHexes.Clear(); // Clear movement adjacency data on deselect
+
 		// Set color
 		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
+	}
+
+	public void MoveToHex(Hex h)
+	{
+		Position = map.MapToLocal(h.coordinate);
+		coords = h.coordinate; // Update unit coords
 	}
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		map = GetNode<HexTileMap>("/root/Game/HexTileMap");
-
+		// Collider and UI setup
 		collider = GetNode<Area2D>("Sprite2D/Area2D");
 		UIManager manager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
-
 		// Connect signals
 		this.UnitClicked += manager.SetUnitUI;
-		this.UnitClicked += GetNode<HexTileMap>("/root/Game/HexTileMap").DeselectCurrentCell;
+
+		// Map setup and map signals
+		map = GetNode<HexTileMap>("/root/Game/HexTileMap");
+		// Every unit must subscribe to map clicke events to know when to move, etc.
+		this.UnitClicked += map.DeselectCurrentCell;
+		map.RightClickOnMap += Move; // Unit movement signal
 		
 	}
 
@@ -121,6 +142,18 @@ public partial class Unit : Node2D
 		return hexes;
 	}
 
+	public void Move(Hex h)
+	{
+		if (selected) // If unit is not selected, do nothings
+		{
+			if (validMovementHexes.Contains(h))
+			{
+				GD.Print("Unit attempting to move");
+				MoveToHex(h);
+			}
+		}
+	}
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouse && mouse.ButtonMask == MouseButtonMask.Left)
@@ -133,10 +166,10 @@ public partial class Unit : Node2D
 			if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
 			{
 				EmitSignal(SignalName.UnitClicked, this);
-				SetIconSelected();
+				SetSelected();
 				GetViewport().SetInputAsHandled(); // Consume input
 			}	else {
-				SetIconDeselected(); // Unit not clicked
+				SetDeselected(); // Unit not clicked
 			}		
 		}
     }
@@ -144,18 +177,6 @@ public partial class Unit : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
 	{
-		// if (Input.IsActionJustPressed("left_click")) // Check for mouse clicks on unit
-		// {
-		// 	var spaceState = GetWorld2D().DirectSpaceState;
-		// 	var point = new PhysicsPointQueryParameters2D();
-		// 	point.CollideWithAreas = true;
-		// 	point.Position = GetGlobalMousePosition();
-		// 	var result = spaceState.IntersectPoint(point);
-		// 	if (result.Count > 0 && (Area2D) result[0]["collider"] == collider) // There is a click on this unit
-		// 	{
-		// 		EmitSignal(SignalName.UnitClicked, this);
-		// 	}
 
-		// }
 	}
 }
