@@ -12,6 +12,9 @@ public partial class Game : Node
 		// Load unit textures and scenes
 		Unit.LoadTextures();
 		Unit.LoadUnitScenes();
+
+		// Load UI textures
+		TerrainTileUI.LoadTerrainImages();
     }
 
     // Called when the node enters the scene tree for the first time.

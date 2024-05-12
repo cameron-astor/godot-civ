@@ -5,15 +5,10 @@ using System.Collections.Generic;
 public partial class TerrainTileUI : Panel
 {
 
-	// UI Components
-	Label terrainLabel;
-	Label foodLabel;
-	Label productionLabel;
-
-	TextureRect terrainImage;
+	// SHARED RESOURCES
 
 	// Mappings for terrain type names
-	Dictionary<TerrainType, string> terrainTypeStrings = new Dictionary<TerrainType, string>
+	public static Dictionary<TerrainType, string> terrainTypeStrings = new Dictionary<TerrainType, string>
 	{
 		{ TerrainType.PLAINS, "Plains" },
 		{ TerrainType.BEACH,  "Beach" },
@@ -25,18 +20,10 @@ public partial class TerrainTileUI : Panel
 		{ TerrainType.FOREST, "Forest" },
 	};
 
-	// Mappings for terrain images
-	Dictionary<TerrainType, Texture2D> terrainTypeImages;
+	public static Dictionary<TerrainType, Texture2D> terrainTypeImages = new Dictionary<TerrainType, Texture2D>();
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	public static void LoadTerrainImages()
 	{
-		terrainLabel = GetNode<Label>("TerrainLabel");
-		foodLabel = GetNode<Label>("FoodLabel");
-		productionLabel = GetNode<Label>("ProductionLabel");
-
-		terrainImage = GetNode<TextureRect>("TerrainImage");
-
 		// Set up terrain images
 		Texture2D plains = (Texture2D) ResourceLoader.Load("res://textures/plains.jpg");
 		Texture2D beach = (Texture2D) ResourceLoader.Load("res://textures/beach.jpg");
@@ -60,18 +47,38 @@ public partial class TerrainTileUI : Panel
 		};
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+
+	// Data hex
+	Hex h = null;
+
+	// UI Components
+	Label terrainLabel;
+	Label foodLabel;
+	Label productionLabel;
+	TextureRect terrainImage;
+
+
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
 	{
+		terrainLabel = GetNode<Label>("TerrainLabel");
+		foodLabel = GetNode<Label>("FoodLabel");
+		productionLabel = GetNode<Label>("ProductionLabel");
+		terrainImage = GetNode<TextureRect>("TerrainImage");
 	}
 
-	public void SetTerrainUI(TerrainType ttype, int food, int prod)
+	public void SetHex(Hex h)
 	{
-		terrainImage.Texture = terrainTypeImages[ttype];
-		terrainLabel.Text = "Terrain: " + terrainTypeStrings[ttype];
-		foodLabel.Text = "Food: " + food;
-		productionLabel.Text = "Production: " + prod;
+		this.h = h;
+		Refresh();
 	}
 
+	public void Refresh()
+	{
+		terrainImage.Texture = terrainTypeImages[h.terrainType];
+		terrainLabel.Text = "Terrain: " + terrainTypeStrings[h.terrainType];
+		foodLabel.Text = "Food: " + h.food;
+		productionLabel.Text = "Production: " + h.production;		
+	}
 	
 }

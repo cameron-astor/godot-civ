@@ -25,5 +25,4 @@ height = 54
 
 [connection signal="ClickOffMap" from="HexTileMap" to="CanvasLayer/UiManager" method="HideAllPopups"]
 [connection signal="SendCityUIInfo" from="HexTileMap" to="CanvasLayer/UiManager" method="SetCityUI"]
-[connection signal="SendTerrainUIInfo" from="HexTileMap" to="CanvasLayer/UiManager" method="SetTerrainUI"]
 [connection signal="SetCamera" from="HexTileMap" to="Camera" method="SetPosAndZoom"]

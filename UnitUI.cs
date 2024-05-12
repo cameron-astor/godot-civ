@@ -9,6 +9,9 @@ public partial class UnitUI : Panel
 	Label moves;
 	Label hp;
 
+	// Unit data
+	Unit u;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -23,11 +26,18 @@ public partial class UnitUI : Panel
 	{
 	}
 
-	public void UpdateUnitUI(Unit u)
+	public void SetUnit(Unit u)
+	{
+		this.u = u;
+		Refresh();
+	}
+
+	public void Refresh()
 	{
 		unitImage.Texture = Unit.ui_images[u.unitType];
 		unitType.Text = "Unit Type: " + u.unitName;
 		moves.Text = "Moves: " + u.movePoints + "/" + u.maxMovePoints;
 		hp.Text = "HP: " + u.maxHp + "/" + u.hp;
 	}
+
 }

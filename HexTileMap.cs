@@ -39,6 +39,7 @@ public partial class HexTileMap : TileMap
 
 
 	// Signals
+	// Note some signals are in pure C# due to Hex not being a Godot variant type
 	[Signal]
 	// A signal that sets the camera to the desired position and zoom from in game
 	public delegate void SetCameraEventHandler(Vector2 pos, Vector2 zoom); 
@@ -49,7 +50,10 @@ public partial class HexTileMap : TileMap
 	[Signal]
 	public delegate void ClickOffMapEventHandler(); // Signals that a click off map has occurred
 
-	// Note this signal is in pure C# due to Hex not being a Godot variant type
+	// Send hex data signal
+	public delegate void SendHexDataEventHandler(Hex h);
+	public event SendHexDataEventHandler SendHexData;
+
 	public delegate void RightClickOnMapEventHandler(Hex h);
 	public event RightClickOnMapEventHandler RightClickOnMap;
 
@@ -154,7 +158,9 @@ public partial class HexTileMap : TileMap
 		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
 
 		// UI signals setup
-		GetNode<UIManager>("/root/Game/CanvasLayer/UiManager").EndTurn += ProcessTurn;
+		UIManager uimanager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
+		uimanager.EndTurn += ProcessTurn;
+		this.SendHexData += uimanager.SetTerrainUI;
 
 	}
 
@@ -179,7 +185,8 @@ public partial class HexTileMap : TileMap
 					{
 						EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
 					} else { // Tile is not a city
-						EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+						// EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+						SendHexData?.Invoke(h);
 					}
 
 

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// The UI Manager is the top level node for the user interface.
@@ -12,8 +13,9 @@ public partial class UIManager : Node
 
 	// Packed scenes
 	PackedScene cityUiScene;
+	PackedScene terrainUiScene;
+	PackedScene unitUiScene;
 
-	// City UI TODO
 	TerrainTileUI terrainUi;
 	CityUI cityUI;
 	UnitUI unitUi;
@@ -23,11 +25,16 @@ public partial class UIManager : Node
 	public delegate void EndTurnEventHandler();
 
 
+	// All UIs
+	// List<Control> allUIs = new List<Control>();
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 
 		cityUiScene = ResourceLoader.Load<PackedScene>("CityUI.tscn");
+		terrainUiScene = ResourceLoader.Load<PackedScene>("TerrainTileUI.tscn");
+		unitUiScene = ResourceLoader.Load<PackedScene>("UnitUI.tscn");
 
 		// Get UI panels
 		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
@@ -35,8 +42,11 @@ public partial class UIManager : Node
 		unitUi = (UnitUI) GetNode<Panel>("UnitUi");
 		generalUi = (GeneralUI) GetNode<Panel>("GeneralUi");
 
+		// allUIs.AddRange(new List<Control>{terrainUi, cityUI, unitUi, generalUi});
+
 		// Attach EndTurn signal to end turn button
-		generalUi.GetNode<Button>("EndTurnButton").Pressed += SignalEndTurn;
+		Button endTurnButton = generalUi.GetNode<Button>("EndTurnButton");
+		endTurnButton.Pressed += SignalEndTurn;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -48,6 +58,7 @@ public partial class UIManager : Node
 	{
 		EmitSignal(SignalName.EndTurn);
 		generalUi.IncrementTurnCounter();
+		RefreshUI();
 	}
 
 	// Hides all UI windows that are not permanently fixed to the screen.
@@ -59,11 +70,19 @@ public partial class UIManager : Node
 		cityUI.Visible = false;
 	}
 
-	public void SetTerrainUI(TerrainType ttype, int food, int prod)
+	public void SetTerrainUI(Hex h)
 	{
-		HideAllPopups(); // clear screen of current popups
-		terrainUi.SetTerrainUI(ttype, food, prod);
-		terrainUi.Visible = true;
+		HideAllPopups();
+
+		if (terrainUi is not null)
+		{
+			terrainUi.QueueFree();
+
+			terrainUi = (TerrainTileUI) terrainUiScene.Instantiate();
+			AddChild(terrainUi);
+			terrainUi.SetHex(h);
+			terrainUi.Visible = true;
+		}
 	}
 
 	public void SetCityUI(City c)
@@ -81,14 +100,25 @@ public partial class UIManager : Node
 	public void SetUnitUI(Unit u)
 	{
 		HideAllPopups();
-		unitUi.UpdateUnitUI(u);
+
+		unitUi.QueueFree();
+
+		unitUi = (UnitUI) unitUiScene.Instantiate();
+		AddChild(unitUi);
+		unitUi.SetUnit(u);
+		unitUi.Refresh();
 		unitUi.Visible = true;
 	}
 
 	// Refreshes the current visible UIs to be reflective of current data.
 	public void RefreshUI()
 	{
-
+		if (cityUI.Visible)
+			cityUI.Refresh();
+		if (terrainUi.Visible)
+			terrainUi.Refresh();
+		if (unitUi.Visible)
+			unitUi.Refresh();
 	}
 
 	// UI should be recreated on a new turn to reflect updated data
