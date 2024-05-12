@@ -14,7 +14,7 @@ public partial class Settler : Unit
                 hp = 1;
                 movePoints = 2;
                 maxMovePoints = 2;
-                productionRequired = 10000; // test
+                productionRequired = 100; // test
         }
 
 

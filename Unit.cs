@@ -133,6 +133,7 @@ public partial class Unit : Node2D
 		UIManager manager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
 		// Connect signals
 		this.UnitClicked += manager.SetUnitUI;
+		manager.EndTurn += this.ProcessTurn;
 
 		// Map setup and map signals
 		map = GetNode<HexTileMap>("/root/Game/HexTileMap");
@@ -168,6 +169,11 @@ public partial class Unit : Node2D
 		}
 	}
 
+	public void ProcessTurn()
+	{
+		movePoints = maxMovePoints; // Reset movement points every turn
+	}
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouse && mouse.ButtonMask == MouseButtonMask.Left)
@@ -188,9 +194,4 @@ public partial class Unit : Node2D
 		}
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-	{
-
-	}
 }

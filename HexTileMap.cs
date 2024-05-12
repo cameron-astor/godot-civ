@@ -343,10 +343,12 @@ public partial class HexTileMap : TileMap
 		
 		for (int i = 0; i < civStarts.Count; i++)
 		{
-			Civilization currentCiv = new Civilization();
-			currentCiv.id = i + 1; // id 0 reserved for player
-			currentCiv.playerCiv = false;
-			currentCiv.SetRandomColor();
+            Civilization currentCiv = new Civilization
+            {
+                id = i + 1, // id 0 reserved for player
+                playerCiv = false
+            };
+            currentCiv.SetRandomColor();
 
 			civs.Add(currentCiv);
 

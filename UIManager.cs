@@ -84,4 +84,16 @@ public partial class UIManager : Node
 		unitUi.UpdateUnitUI(u);
 		unitUi.Visible = true;
 	}
+
+	// Refreshes the current visible UIs to be reflective of current data.
+	public void RefreshUI()
+	{
+
+	}
+
+	// UI should be recreated on a new turn to reflect updated data
+	public void ProcessTurn()
+	{
+
+	}
 }

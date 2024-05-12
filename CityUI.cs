@@ -21,17 +21,14 @@ public partial class CityUI : Control
 		production = GetNode<Label>("Panel/Production");
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
-
 	public void SetCityUI(City city)
 	{
 		cityName.Text = city.name;
 		population.Text = "Population: " + city.population;
 		food.Text = "Food: " + city.totalFood;
 		production.Text = "Production: " + city.totalProduction;
+
+		PopulateUnitQueueUI(city);
 
 		ConnectUnitBuildSignals(city); // This is why we should destroy and remake the UIs every time!!
 	}
@@ -56,6 +53,24 @@ public partial class CityUI : Control
 		settlerButton.OnPressed += city.AddUnitToBuildQueue;
 		warriorButton.OnPressed += city.AddUnitToBuildQueue;
 
+	}
+
+	public void PopulateUnitQueueUI(City city)
+	{
+		VBoxContainer queue = GetNode<VBoxContainer>("Panel/QueueContainer/VBoxContainer");
+		foreach (Unit u in city.unitBuildQueue)
+		{
+			if (u == city.currentUnitBeingBuilt)
+			{
+				queue.AddChild(new Label() {
+					Text = $"{u.unitName} {city.unitBuildTracker}/{u.productionRequired}"
+				});
+			} else {
+				queue.AddChild(new Label() {
+					Text = $"{u.unitName} 0/{u.productionRequired}"
+				});				
+			}
+		}
 	}
 
 	public void SetVisibile(bool visible)
