@@ -29,6 +29,18 @@ public partial class Unit : Node2D
 	// Unit properties
 	public HashSet<TerrainType> impassible = new HashSet<TerrainType>(); // Terrain that is considered impassible by this unit.
 																		 // Default empty, so nothing impassible.
+	
+	// Default impassible terrain for ground units
+	public static HashSet<TerrainType> GroundUnitsDefaultImpassible()
+	{
+		return new HashSet<TerrainType>{
+			TerrainType.ICE,
+			TerrainType.MOUNTAIN,
+			TerrainType.WATER,
+			TerrainType.SHALLOW_WATER
+		};
+	}
+	
 	// Gameplay variables
 	public string unitName = "DEFAULT";
 	public UnitType unitType;
@@ -144,12 +156,14 @@ public partial class Unit : Node2D
 
 	public void Move(Hex h)
 	{
-		if (selected) // If unit is not selected, do nothings
+		if (selected && movePoints > 0) // If unit is not selected, do nothing
 		{
 			if (validMovementHexes.Contains(h))
 			{
-				GD.Print("Unit attempting to move");
 				MoveToHex(h);
+				validMovementHexes = CalculateValidAdjacentMovementHexes();
+				movePoints -= 1;
+				EmitSignal(SignalName.UnitClicked, this); // refresh unit UI
 			}
 		}
 	}

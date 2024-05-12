@@ -17,7 +17,10 @@ public partial class UIManager : Node
 	TerrainTileUI terrainUi;
 	CityUI cityUI;
 	UnitUI unitUi;
-	Panel generalUi;
+	GeneralUI generalUi;
+
+	[Signal]
+	public delegate void EndTurnEventHandler();
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -30,12 +33,21 @@ public partial class UIManager : Node
 		terrainUi = (TerrainTileUI) GetNode<Panel>("TerrainTileUi");
 		cityUI = (CityUI) GetNode<Control>("CityUI");
 		unitUi = (UnitUI) GetNode<Panel>("UnitUi");
-		generalUi = GetNode<Panel>("GeneralUi");
+		generalUi = (GeneralUI) GetNode<Panel>("GeneralUi");
+
+		// Attach EndTurn signal to end turn button
+		generalUi.GetNode<Button>("EndTurnButton").Pressed += SignalEndTurn;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+
+	public void SignalEndTurn()
+	{
+		EmitSignal(SignalName.EndTurn);
+		generalUi.IncrementTurnCounter();
 	}
 
 	// Hides all UI windows that are not permanently fixed to the screen.

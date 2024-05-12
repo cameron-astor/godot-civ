@@ -75,7 +75,7 @@ public partial class City : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		ProcessTurn();
+		// ProcessTurn();
 	}
 
 	public void AddTerritory(List<Hex> territoryToAdd)

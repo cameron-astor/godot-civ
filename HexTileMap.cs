@@ -140,7 +140,8 @@ public partial class HexTileMap : TileMap
 		terrainAtlas.GetTileData(terrainTextures[TerrainType.CIV_COLOR_BASE], id).Modulate = playerCiv.territoryColor; // Part of civ gen
 		
 		playerCiv.territoryColorAltTileId = id;
-
+		civs.Add(playerCiv);
+		
 		// Create player city
 		CreateCity(playerCiv, GenerateCivStartingLocations(1)[0], "Player City");
 
@@ -151,6 +152,9 @@ public partial class HexTileMap : TileMap
 		// CAMERA ETC SETUP
 		// Send signal to camera to center on player city to start.
 		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
+
+		// UI signals setup
+		GetNode<UIManager>("/root/Game/CanvasLayer/UiManager").EndTurn += ProcessTurn;
 
 	}
 
@@ -219,11 +223,12 @@ public partial class HexTileMap : TileMap
 		SetCell(3, currentSelectedCell, -1);
 	}
 
-
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
+	public void ProcessTurn()
 	{
-
+		foreach (Civilization c in civs)
+		{
+			c.ProcessTurn();
+		}
 	}
 
 	// Generates valid starting locations for a given number of civilizations to be placed in

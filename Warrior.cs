@@ -21,6 +21,8 @@ public partial class Warrior : Unit
 	{
 		base._Ready(); // Unit shared setup code
 
+		impassible = Unit.GroundUnitsDefaultImpassible();
+
         // GD.Print("Warrior entered scene tree!");
         // GD.Print(ui_images[unitType]);
 	}

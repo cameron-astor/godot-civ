@@ -27,7 +27,7 @@ public partial class UnitUI : Panel
 	{
 		unitImage.Texture = Unit.ui_images[u.unitType];
 		unitType.Text = "Unit Type: " + u.unitName;
-		moves.Text = "Moves: " + u.maxMovePoints + "/" + u.movePoints;
+		moves.Text = "Moves: " + u.movePoints + "/" + u.maxMovePoints;
 		hp.Text = "HP: " + u.maxHp + "/" + u.hp;
 	}
 }

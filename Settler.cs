@@ -23,7 +23,7 @@ public partial class Settler : Unit
 	{
                 base._Ready(); // Unit shared setup code
 
-
+                impassible = Unit.GroundUnitsDefaultImpassible();
                 // GD.Print("Settler entered scene tree!");
                 // GD.Print(ui_images[unitType]);
 	}
