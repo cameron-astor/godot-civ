@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public partial class Settler : Unit
 {
+        // public delegate void SettlerDestroyedEventHandler();
+        // public event SettlerDestroyedEventHandler SettlerDestroyed;
 
         public Settler()
         {
@@ -27,6 +29,17 @@ public partial class Settler : Unit
                 // GD.Print("Settler entered scene tree!");
                 // GD.Print(ui_images[unitType]);
 	}
+
+        public void FoundCity()
+        {
+                if (map.GetHex(this.coords).ownerCiv == null) // Make sure the tile is not currently owned
+                {
+                        map.CreateCity(this.civ, this.coords, $"Settled City {coords.X}");
+                        // SettlerDestroyed?.Invoke();
+
+                        this.DestroyUnit();
+                }
+        }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)

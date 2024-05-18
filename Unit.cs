@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,8 @@ public partial class Unit : Node2D
 
 	[Signal]
 	public delegate void UnitClickedEventHandler(Unit u);
+	public delegate void SelectedUnitDestroyedEventHandler();
+    public event SelectedUnitDestroyedEventHandler SelectedUnitDestroyed;
 
 	// Mapping of unit type to icon resource location.
 	// Actual loading of texture will take place in unit subclasses.
@@ -134,6 +137,7 @@ public partial class Unit : Node2D
 		// Connect signals
 		this.UnitClicked += manager.SetUnitUI;
 		manager.EndTurn += this.ProcessTurn;
+		this.SelectedUnitDestroyed += manager.HideAllPopups;
 
 		// Map setup and map signals
 		map = GetNode<HexTileMap>("/root/Game/HexTileMap");
@@ -172,6 +176,19 @@ public partial class Unit : Node2D
 	public void ProcessTurn()
 	{
 		movePoints = maxMovePoints; // Reset movement points every turn
+	}
+
+	public void DestroyUnit()
+	{	
+		// Disconnect signals
+		map.RightClickOnMap -= Move;
+
+		if (selected)
+		{
+			SelectedUnitDestroyed?.Invoke();
+		}
+
+		this.QueueFree();
 	}
 
     public override void _UnhandledInput(InputEvent @event)

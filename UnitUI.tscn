@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://bmdgvbr1wemj2"]
+[gd_scene load_steps=4 format=3 uid="uid://bmdgvbr1wemj2"]
 
 [ext_resource type="Script" path="res://UnitUI.cs" id="1_ls12q"]
 [ext_resource type="Texture2D" uid="uid://da45yw8mbe7rc" path="res://textures/settler_image.png" id="1_tboap"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_5ihu0"]
+font_size = 20
 
 [node name="UnitUi" type="Panel"]
 offset_right = 248.0
@@ -38,3 +41,19 @@ offset_top = 221.0
 offset_right = 89.0
 offset_bottom = 244.0
 text = "HP: "
+
+[node name="ActionsTitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 252.0
+offset_right = 95.0
+offset_bottom = 286.0
+text = "Actions"
+label_settings = SubResource("LabelSettings_5ihu0")
+
+[node name="ActionsContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 283.0
+offset_right = 233.0
+offset_bottom = 381.0

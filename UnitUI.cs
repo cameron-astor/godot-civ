@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Security.AccessControl;
 
 public partial class UnitUI : Panel
 {
@@ -19,6 +20,7 @@ public partial class UnitUI : Panel
 		unitType = GetNode<Label>("UnitTypeLabel");
 		hp = GetNode<Label>("HealthLabel");
 		moves = GetNode<Label>("MovesLabel");
+		
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -29,8 +31,34 @@ public partial class UnitUI : Panel
 	public void SetUnit(Unit u)
 	{
 		this.u = u;
+
+		// Special setup for settler
+		if (this.u.unitType == UnitType.SETTLER)
+		{
+			VBoxContainer actionsContainer = GetNode<VBoxContainer>("ActionsContainer");
+			Button foundCityButton = new Button();
+			foundCityButton.Text = "Found City";
+			actionsContainer.AddChild(foundCityButton);
+
+			Settler settler = (Settler) this.u;
+			foundCityButton.Pressed += settler.FoundCity;
+			// settler.SettlerDestroyed += DisposeSignals;
+			// NOTE THIS SIGNAL MUST BE DISCONNECTED ON SETTLER DESPAWN SINCE RIGHT NOW IT DOESNT AND CAUSES BUGS!!!
+		}
+
 		Refresh();
 	}
+
+	// public void DisposeSignals()
+	// {
+	// 	if (this.u.unitType == UnitType.SETTLER)
+	// 	{
+	// 		Settler s = (Settler) this.u;
+	// 		Button foundCityButton = GetNode<Button>("ActionsContainer/Button");
+	// 		foundCityButton.Pressed -= s.FoundCity;
+	// 		s.SettlerDestroyed -= DisposeSignals;
+	// 	}
+	// }
 
 	public void Refresh()
 	{
