@@ -240,7 +240,6 @@ public partial class City : Node2D
 	// Maybe store another static mapping in the Unit class for this.
 	public void AddUnitToBuildQueue(Unit u)
 	{
-		GD.Print("Added to queue");
 		unitBuildQueue.Add(u);
 	}
 

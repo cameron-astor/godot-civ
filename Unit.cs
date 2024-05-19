@@ -97,6 +97,8 @@ public partial class Unit : Node2D
 		
 		// Set color
 		GetNode<Sprite2D>("Sprite2D").Modulate = civ.territoryColor;
+
+		this.civ.units.Add(this); // Add to civ unit list
 	}
 
 	public void SetSelected()
@@ -144,6 +146,9 @@ public partial class Unit : Node2D
 		// Every unit must subscribe to map clicke events to know when to move, etc.
 		this.UnitClicked += map.DeselectCurrentCell;
 		map.RightClickOnMap += Move; // Unit movement signal
+
+		// Calculate movement ranges ahead of time
+		validMovementHexes = CalculateValidAdjacentMovementHexes();
 		
 	}
 
@@ -188,6 +193,8 @@ public partial class Unit : Node2D
 			SelectedUnitDestroyed?.Invoke();
 		}
 
+		this.civ.units.Remove(this); // remove from civ unit list
+
 		this.QueueFree();
 	}
 
@@ -210,5 +217,17 @@ public partial class Unit : Node2D
 			}		
 		}
     }
+
+	// For AI use only! 
+	public void RandomMove()
+	{
+		Random r = new Random();
+		validMovementHexes = CalculateValidAdjacentMovementHexes();
+		Hex h = validMovementHexes.ElementAt(r.Next(validMovementHexes.Count));
+
+		MoveToHex(h);
+		validMovementHexes = CalculateValidAdjacentMovementHexes(); // Recalculate valid movement hexes
+		movePoints -= 1;
+	}
 
 }
