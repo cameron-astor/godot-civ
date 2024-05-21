@@ -23,7 +23,7 @@ public partial class City : Node2D
 	
 
 	// Gameplay constants
-	public int POPULATION_THRESHOLD_INCREASE = 0; // amount to increase the threshold each time population grows.
+	public int POPULATION_THRESHOLD_INCREASE = 10; // amount to increase the threshold each time population grows.
 
 	// City attributes
 	public string name; // Name of city to be displayed on the label

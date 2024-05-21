@@ -270,7 +270,7 @@ public partial class HexTileMap : TileMap
 			bool valid = false;
 			int counter = 0; // prevent infinite loop. For now, if after 100 attempts no suitable locations are found, accept unsuitable location.
 
-			while (!valid && counter < 100)
+			while (!valid && counter < 300)
 			{
 				coord = plainsTiles[r.Next(plainsTiles.Count)];
 				valid = IsValidLocation(coord, locations);
@@ -297,7 +297,7 @@ public partial class HexTileMap : TileMap
 
 		foreach (Vector2I l in locations) // Check cities aren't too close
 		{
-			if (Math.Abs(coord.X - l.X) < 3 || Math.Abs(coord.Y - l.Y) < 3)
+			if (Math.Abs(coord.X - l.X) < 5 || Math.Abs(coord.Y - l.Y) < 5)
 				return false;  // The city is too close to another
 		}		
 
