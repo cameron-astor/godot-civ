@@ -26,6 +26,42 @@ offset_left = 391.0
 offset_top = 158.0
 offset_right = 707.0
 offset_bottom = 571.0
+theme_override_constants/separation = 25
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Map Width "
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+min_value = 44.0
+max_value = 106.0
+value = 44.0
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Map Height "
+
+[node name="SpinBox2" type="SpinBox" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+min_value = 26.0
+max_value = 66.0
+value = 26.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Number of AI "
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 6.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -36,6 +72,7 @@ text = "Player Color "
 
 [node name="ColorPickerButton" type="ColorPickerButton" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Button" type="Button" parent="VBoxContainer"]
 layout_mode = 2
