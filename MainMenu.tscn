@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://r3w8j0q3o3t"]
+[gd_scene load_steps=4 format=3 uid="uid://r3w8j0q3o3t"]
 
 [ext_resource type="Texture2D" uid="uid://c08gg26v82hwv" path="res://textures/menubg.png" id="1_87k54"]
+[ext_resource type="Script" path="res://MainMenu.cs" id="1_hqnnt"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qh28q"]
 font_size = 48
@@ -10,6 +11,7 @@ shadow_color = Color(0, 0, 0, 1)
 shadow_offset = Vector2(2, 1)
 
 [node name="MainMenu" type="Node2D"]
+script = ExtResource("1_hqnnt")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 color = Color(0.14902, 0.278431, 0.52549, 1)
@@ -89,3 +91,6 @@ offset_right = 901.0
 offset_bottom = 95.0
 text = "HEX-BASED STRATEGY GAME"
 label_settings = SubResource("LabelSettings_qh28q")
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="Start"]
+[connection signal="pressed" from="VBoxContainer/Button2" to="." method="Quit"]
