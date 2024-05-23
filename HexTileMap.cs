@@ -69,6 +69,8 @@ public partial class HexTileMap : TileMap
 	[Export]
 	public int NUM_AI_CIVS = 0;
 
+	[Export]
+	public Color PLAYER_COLOR = new Color(255,255,255);
 
 	// MAP DATA
 	Dictionary<Vector2I, Hex> mapData;
@@ -132,7 +134,8 @@ public partial class HexTileMap : TileMap
 		Civilization playerCiv = new Civilization();
 		playerCiv.id = 0;
 		playerCiv.playerCiv = true;
-		playerCiv.SetRandomColor();
+		// playerCiv.SetRandomColor();
+		playerCiv.territoryColor = new Color(PLAYER_COLOR);
 
 		// Create alt tiles for each civ's territory color.
 		// We base this off the ice tiles since they are almost white and

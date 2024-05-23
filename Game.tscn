@@ -18,6 +18,7 @@ zoom_speed = 0.1
 [node name="HexTileMap" parent="." instance=ExtResource("4_1wtir")]
 width = 84
 height = 54
+PLAYER_COLOR = Color(0.505882, 0.341176, 0.439216, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
