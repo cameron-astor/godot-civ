@@ -35,7 +35,7 @@ public partial class Settler : Unit
 
         public void FoundCity()
         {
-                if (map.GetHex(this.coords).ownerCiv == null) // Make sure the tile is not currently owned
+                if (map.GetHex(this.coords).ownerCity == null) // Make sure the tile is not currently owned
                 {
                         map.CreateCity(this.civ, this.coords, $"Settled City {coords.X}");
                         // SettlerDestroyed?.Invoke();

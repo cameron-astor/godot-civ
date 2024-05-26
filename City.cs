@@ -83,7 +83,7 @@ public partial class City : Node2D
 		foreach (Hex h in territoryToAdd) // Set ownership of hex
 		{
 			h.ownerCity = this;
-			h.ownerCiv = this.civ;
+			// h.ownerCiv = this.civ;
 
 			// Add new border hexes to border tile pool
 			AddValidNeighborsToBorderPool(h);
@@ -166,7 +166,7 @@ public partial class City : Node2D
 			return false;
 		}
 
-		if ( n.ownerCiv != null && n.ownerCity != null) // Check that hex is not already owned
+		if ( n.ownerCity != null && n.ownerCity.civ != null ) // Check that hex is not already owned
 			return false;
 
 		if ( !map.HexInBounds(n.coordinate) ) // Check that hex is in map bounds
@@ -245,6 +245,19 @@ public partial class City : Node2D
 		else {
 			GD.Print("max units reached!");
 		}
+	}
+
+	public void ChangeOwnership(Civilization newOwner)
+	{
+		Civilization oldOwner = this.civ;
+
+		this.civ.cities.Remove(this); // Remove this city from current owner
+		newOwner.cities.Add(this); // Add city to new owner
+
+		SetIconColor(newOwner.territoryColor);
+
+		map.UpdateCivTerritoryMap(newOwner);
+		map.UpdateCivTerritoryMap(oldOwner);
 	}
 
 }

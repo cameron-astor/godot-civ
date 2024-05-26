@@ -15,7 +15,6 @@ public partial class Hex
 	public int food;
 	public int production;
 
-	public Civilization ownerCiv;
 	public City ownerCity;
 
 	public bool isCityCenter = false;
@@ -23,7 +22,6 @@ public partial class Hex
 	public Hex(Vector2I coord)
 	{
 		coordinate = coord;
-		ownerCiv = null;
 		ownerCity = null;
 	}
 }

@@ -159,17 +159,18 @@ public partial class Unit : Node2D
 			movePoints -= 1;
 
 			// City conquest
-			if (h.isCityCenter && h.ownerCiv != this.civ)
+			if (h.isCityCenter && h.ownerCity.civ != this.civ)
 			{
 				// Transfer city ownership
-				h.ownerCiv.cities.Remove(h.ownerCity);
-				this.civ.cities.Add(h.ownerCity);
+				// h.ownerCiv.cities.Remove(h.ownerCity);
+				// this.civ.cities.Add(h.ownerCity);
 
-				Civilization formerOwner = h.ownerCiv;
-				h.ownerCity.civ = this.civ;
+				// Civilization formerOwner = h.ownerCiv;
+				// h.ownerCity.civ = this.civ;
 
-				map.UpdateCivTerritoryMap(this.civ);
-				map.UpdateCivTerritoryMap(formerOwner);
+				// map.UpdateCivTerritoryMap(this.civ);
+				// map.UpdateCivTerritoryMap(formerOwner);
+				h.ownerCity.ChangeOwnership(this.civ);
 			}
 
 		// Target hex must be occupied.
