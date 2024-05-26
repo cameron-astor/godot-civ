@@ -20,6 +20,9 @@ public class Civilization
 	public string name;
 	public bool playerCiv;
 
+
+	public int maxUnits = 3; // Maximum possible unit upkeep based on number of cities
+
 	// AI rng
 	Random r = new Random();
 
@@ -91,6 +94,10 @@ public class Civilization
 			}
 
         }
+
+
+		// Update max units
+		maxUnits = this.cities.Count * 3;
 
     }
 

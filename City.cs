@@ -240,7 +240,11 @@ public partial class City : Node2D
 	// Maybe store another static mapping in the Unit class for this.
 	public void AddUnitToBuildQueue(Unit u)
 	{
-		unitBuildQueue.Add(u);
+		if (this.civ.maxUnits > this.civ.units.Count) // If not over unit max
+			unitBuildQueue.Add(u);
+		else {
+			GD.Print("max units reached!");
+		}
 	}
 
 }

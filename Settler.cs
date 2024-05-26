@@ -14,8 +14,11 @@ public partial class Settler : Unit
 
                 maxHp = 1;
                 hp = 1;
+                attackVal = 0;
+
                 movePoints = 2;
                 maxMovePoints = 2;
+
                 productionRequired = 100; // test
         }
 

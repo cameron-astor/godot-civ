@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="zenva_civ"
-run/main_scene="res://Game.tscn"
+run/main_scene="res://MainMenu.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 
 [display]

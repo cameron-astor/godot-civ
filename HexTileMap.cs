@@ -17,6 +17,8 @@ public partial class Hex
 
 	public Civilization ownerCiv;
 	public City ownerCity;
+
+	public bool isCityCenter = false;
 	
 	public Hex(Vector2I coord)
 	{
@@ -321,6 +323,7 @@ public partial class HexTileMap : TileMap
 		city.SetName(name);
 
 		city.centerCoordinates = coords;
+		GetHex(coords).isCityCenter = true;
 		city.AddTerritory(new List<Hex>{mapData[coords]}); // Add city center coordinate
 		city.AddTerritory(GetSurroundingHexes(coords)); // Add starting surrounding tiles
 

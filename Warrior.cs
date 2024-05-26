@@ -11,8 +11,11 @@ public partial class Warrior : Unit
 
         maxHp = 3;
         hp = 3;
+		attackVal = 2;
+
         movePoints = 1;
         maxMovePoints = 1;
+
 		productionRequired = 50;
 	}
 
