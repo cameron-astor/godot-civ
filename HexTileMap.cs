@@ -7,7 +7,6 @@ public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, F
 
 public partial class Hex
 {
-
 	public readonly Vector2I coordinate; // The coordinate of this hex on the map. Should not change.
 
 	// Tile attributes
@@ -273,7 +272,7 @@ public partial class HexTileMap : TileMap
 			bool valid = false;
 			int counter = 0; // prevent infinite loop. For now, if after 100 attempts no suitable locations are found, accept unsuitable location.
 
-			while (!valid && counter < 300)
+			while (!valid && counter < 1000)
 			{
 				coord = plainsTiles[r.Next(plainsTiles.Count)];
 				valid = IsValidLocation(coord, locations);
@@ -323,7 +322,16 @@ public partial class HexTileMap : TileMap
 		city.centerCoordinates = coords;
 		GetHex(coords).isCityCenter = true;
 		city.AddTerritory(new List<Hex>{mapData[coords]}); // Add city center coordinate
-		city.AddTerritory(GetSurroundingHexes(coords)); // Add starting surrounding tiles
+
+		// Add surrounding territory that is not part of another civ or another city 
+		// in the current civ.
+		List<Hex> surrounding = GetSurroundingHexes(coords);
+		foreach (Hex h in surrounding)
+		{
+			if (h.ownerCity == null)
+				city.AddTerritory(new List<Hex>{h});
+		}
+		// city.AddTerritory(GetSurroundingHexes(coords)); // Add starting surrounding tiles
 
 		// Convert map coords to local space coordinates to place city node.
 		city.Position = MapToLocal(coords);
