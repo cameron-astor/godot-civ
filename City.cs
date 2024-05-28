@@ -94,7 +94,7 @@ public partial class City : Node2D
 		CalculateTerritoryResourceTotals();
 	}
 
-	public void SetName(string newName)
+	public void SetCityName(string newName)
 	{
 		name = newName;
 		label.Text = newName;

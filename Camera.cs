@@ -20,9 +20,9 @@ public partial class Camera : Camera2D
 	bool mouseWheelScrollingUp = false;
 	bool mouseWheelScrollingDown = false;
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
+
+    public override void _Ready()
+    {
 		map = GetNode<HexTileMap>("../HexTileMap");
 
 		// Calculate camera boundaries from map dimensions
@@ -30,19 +30,20 @@ public partial class Camera : Camera2D
 		rightBound = ToGlobal(map.MapToLocal(new Vector2I(map.width, 0))).X - 100;
 		topBound = ToGlobal(map.MapToLocal(new Vector2I(0, 0))).Y + 50;
 		bottomBound = ToGlobal(map.MapToLocal(new Vector2I(0, map.height))).Y - 50;
-	}
+    }
 
+	// Note that the camera logic is in _PhysicsProcess() rather than _Process().
+	// This is because we need a consistent tick rate to avoid subtle stuttering and movement'
+	// artifacts with the camera. 
+	//
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
 	{
-		// GD.Print(Engine.GetFramesPerSecond());
-
 		// Map controls
 		if (Input.IsActionPressed("map_right"))
 		{
 			if (this.Position.X < rightBound)
 				this.Position += new Vector2(velocity, 0);
-			// GD.Print(Zoom);
 		}
 		if (Input.IsActionPressed("map_left"))
 		{
@@ -66,14 +67,12 @@ public partial class Camera : Camera2D
 			if (this.Zoom < new Vector2(3f, 3f)) {
 				this.Zoom += new Vector2(zoom_speed, zoom_speed);
 			}
-			// GD.Print(this.Zoom);
 		}
 		if (Input.IsActionPressed("map_zoom_out") || mouseWheelScrollingDown)
 		{
 			if (this.Zoom > new Vector2(0.1f, 0.1f)) {
 				this.Zoom -= new Vector2(zoom_speed, zoom_speed);
 			}
-			// GD.Print(this.Zoom);
 		}
 
 		if (Input.IsActionJustReleased("mouse_zoom_in"))
@@ -98,11 +97,9 @@ public partial class Camera : Camera2D
 		
 	}
 
-	public void SetPosAndZoom(Vector2 pos, Vector2 zoom)
+	public void SetPos(Vector2 pos)
 	{
-		// PositionSmoothingEnabled = false;
 		Position = pos;
-		// Zoom = zoom;
 	}
 
 }

@@ -5,7 +5,7 @@ using System.Linq;
 
 public enum TerrainType { PLAINS, WATER, DESERT, MOUNTAIN, ICE, SHALLOW_WATER, FOREST, BEACH, CIV_COLOR_BASE }
 
-public partial class Hex
+public class Hex
 {
 	public readonly Vector2I coordinate; // The coordinate of this hex on the map. Should not change.
 
@@ -25,15 +25,19 @@ public partial class Hex
 	}
 }
 
-public partial class HexTileMap : TileMap
+public partial class HexTileMap : Node2D
 {
+
+	// TileMapLayers
+	TileMapLayer baseLayer, borderLayer, overlayLayer, civColorsLayer; 
+
 
 	// PackedScenes
 	PackedScene cityScene;
 
 
 	// Tile atlases
-	TileSetAtlasSource iconAtlas;
+	// TileSetAtlasSource iconAtlas;
 	TileSetAtlasSource terrainAtlas;
 
 
@@ -41,7 +45,7 @@ public partial class HexTileMap : TileMap
 	// Note some signals are in pure C# due to Hex not being a Godot variant type
 	[Signal]
 	// A signal that sets the camera to the desired position and zoom from in game
-	public delegate void SetCameraEventHandler(Vector2 pos, Vector2 zoom); 
+	public delegate void SetCameraEventHandler(Vector2 pos); 
 	[Signal]
 	public delegate void SendCityUIInfoEventHandler(City c); // Sends city info to the UI
 	[Signal]
@@ -94,11 +98,17 @@ public partial class HexTileMap : TileMap
 		// Load packed scenes
 		cityScene = ResourceLoader.Load<PackedScene>("City.tscn");
 
+		// Set up TileMapLayers
+		baseLayer = GetNode<TileMapLayer>("BaseLayer");
+		borderLayer = GetNode<TileMapLayer>("HexBordersLayer");
+		overlayLayer = GetNode<TileMapLayer>("SelectionOverlayLayer");
+		civColorsLayer = GetNode<TileMapLayer>("CivColorsLayer");
+		
+
 		// Get the tile atlas of base color icons.
 		// We will use this to change icons to a certain civilization's color
 		// via alternative tiles.
-		this.iconAtlas = (TileSetAtlasSource) TileSet.GetSource(2); // Takes in the ID number of the tile atlas as configured in the editor.
-		this.terrainAtlas = (TileSetAtlasSource) TileSet.GetSource(0);
+		this.terrainAtlas = (TileSetAtlasSource) civColorsLayer.TileSet.GetSource(0);
 
 		// Terrain gen step
 		mapData = new Dictionary<Vector2I, Hex>();
@@ -129,6 +139,29 @@ public partial class HexTileMap : TileMap
 		civs = new List<Civilization>();
 		cities = new Dictionary<Vector2I, City>();
 
+		Civilization playerCiv = CreatePlayerCiv();
+
+		// Go through the same process for all AI civs.
+		GenerateAICivs();
+
+		// UI signals setup
+		UIManager uimanager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
+		uimanager.EndTurn += ProcessTurn;
+		this.SendHexData += uimanager.SetTerrainUI;
+
+	}
+
+	public void CenterCameraOnPlayer()
+	{
+		foreach (Civilization c in civs)
+		{
+			if (c.playerCiv)
+				EmitSignal(SignalName.SetCamera, baseLayer.ToGlobal(baseLayer.MapToLocal(c.cities[0].centerCoordinates)));
+		}
+	}
+
+	public Civilization CreatePlayerCiv()
+	{
 		// Create player civilization and starting city
 		Civilization playerCiv = new Civilization();
 		playerCiv.id = 0;
@@ -151,19 +184,7 @@ public partial class HexTileMap : TileMap
 		// Create player city
 		CreateCity(playerCiv, GenerateCivStartingLocations(1)[0], "Player City");
 
-		// Go through the same process for all AI civs.
-		GenerateAICivs();
-
-
-		// CAMERA ETC SETUP
-		// Send signal to camera to center on player city to start.
-		EmitSignal(SignalName.SetCamera, ToGlobal(MapToLocal(playerCiv.cities[0].centerCoordinates)), new Vector2(0.5f, 0.5f));
-
-		// UI signals setup
-		UIManager uimanager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
-		uimanager.EndTurn += ProcessTurn;
-		this.SendHexData += uimanager.SetTerrainUI;
-
+		return playerCiv;
 	}
 
 	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
@@ -171,7 +192,7 @@ public partial class HexTileMap : TileMap
     public override void _UnhandledInput(InputEvent @event)
     {
 		if (@event is InputEventMouseButton mouse) { // Map mouse controls
-			Vector2I mapCoords = LocalToMap(ToLocal(GetGlobalMousePosition()));
+			Vector2I mapCoords = baseLayer.LocalToMap(ToLocal(GetGlobalMousePosition()));
 
 			if (mapCoords.X >= 0 && mapCoords.X < width && mapCoords.Y >= 0 && mapCoords.Y < height) // If click is in bounds of the map
 			{
@@ -193,18 +214,13 @@ public partial class HexTileMap : TileMap
 
 
 					if (mapCoords != currentSelectedCell) { // If the clicked area differs from current selection, unselect current
-						SetCell(3, currentSelectedCell, -1);
+						overlayLayer.SetCell(currentSelectedCell, -1);
 					}
 					
-					SetCell(3, mapCoords, 1, new Vector2I(0, 1));
+					overlayLayer.SetCell(mapCoords, 0, new Vector2I(0, 1));
 
 					currentSelectedCell = mapCoords; // Update current
 
-					// GD.Print("Coordinates: " + mapCoords);
-					// GD.Print("Terrain: " + mapData[mapCoords].terrainType);
-					// GD.Print("Food: " + mapData[mapCoords].food);
-					// GD.Print("Production: " + mapData[mapCoords].production);
-					// GD.Print("Neighbors: " +  GetSurroundingCells(mapCoords));
 				}
 
 				if (mouse.ButtonMask == MouseButtonMask.Right)
@@ -223,13 +239,13 @@ public partial class HexTileMap : TileMap
 	// Deselects the current selected cell visually
 	public void DeselectCurrentCell()
 	{
-		SetCell(3, currentSelectedCell, -1);
+		overlayLayer.SetCell(currentSelectedCell, -1);
 	}
 
 	// Overload for compatibility with unit click event
 	public void DeselectCurrentCell(Unit u = null)
 	{
-		SetCell(3, currentSelectedCell, -1);
+		overlayLayer.SetCell(currentSelectedCell, -1);
 	}
 
 	public void ProcessTurn()
@@ -317,7 +333,7 @@ public partial class HexTileMap : TileMap
 
 		city.SetIconColor(civ.territoryColor); 
 
-		city.SetName(name);
+		city.SetCityName(name);
 
 		city.centerCoordinates = coords;
 		GetHex(coords).isCityCenter = true;
@@ -334,7 +350,7 @@ public partial class HexTileMap : TileMap
 		// city.AddTerritory(GetSurroundingHexes(coords)); // Add starting surrounding tiles
 
 		// Convert map coords to local space coordinates to place city node.
-		city.Position = MapToLocal(coords);
+		city.Position = baseLayer.MapToLocal(coords);
 
 		UpdateCivTerritoryMap(civ);
 
@@ -347,7 +363,7 @@ public partial class HexTileMap : TileMap
 	public List<Hex> GetSurroundingHexes(Vector2I coords)
 	{
 		List<Hex> result = new List<Hex>();
-		foreach (Vector2I coord in GetSurroundingCells(coords))
+		foreach (Vector2I coord in baseLayer.GetSurroundingCells(coords))
 		{
 			if (HexInBounds(coord))
 				result.Add(mapData[coord]);
@@ -398,7 +414,8 @@ public partial class HexTileMap : TileMap
 		{
 			foreach (Hex h in c.territory)
 			{
-				SetCell(2, h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
+				// civColorsLayer.SetCell(h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
+				civColorsLayer.SetCell(h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 			}
 		}
 	}
@@ -569,8 +586,11 @@ public partial class HexTileMap : TileMap
 				h.terrainType = terrainGenValues.First(range => noiseValue >= range.Min 
 																&& noiseValue < range.Max).Type;
 				mapData[new Vector2I(x, y)] = h;
-				SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
-				SetCell(1, new Vector2I(x, y), 1, new Vector2I(0, 0));
+				baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+				// baseLayer.SetCell(new Vector2I(x, y), 0, new Vector2I(0, 0));
+
+				// Set tile borders
+				borderLayer.SetCell(new Vector2I(x, y), 0, new Vector2I(0, 0));
 			}
 		}
 
@@ -587,7 +607,7 @@ public partial class HexTileMap : TileMap
 					h.terrainType == TerrainType.PLAINS) 
 				{
 					h.terrainType = TerrainType.DESERT;
-					SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+					baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
 				}
 			}
 		}
@@ -604,7 +624,7 @@ public partial class HexTileMap : TileMap
 					h.terrainType == TerrainType.PLAINS) 
 				{
 					h.terrainType = TerrainType.FOREST;
-					SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+					baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
 				}
 			}
 		}
@@ -622,7 +642,7 @@ public partial class HexTileMap : TileMap
 					h.terrainType != TerrainType.SHALLOW_WATER) 
 				{
 					h.terrainType = TerrainType.MOUNTAIN;
-					SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+					baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
 				}
 			}
 		}		
@@ -639,7 +659,7 @@ public partial class HexTileMap : TileMap
 			{
 				Hex h = mapData[new Vector2I(x, y)];
 				h.terrainType = TerrainType.ICE;
-				SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
+				baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);
 			}
 
 			// South pole
@@ -647,7 +667,7 @@ public partial class HexTileMap : TileMap
 			{
 				Hex h = mapData[new Vector2I(x, y)];
 				h.terrainType = TerrainType.ICE;
-				SetCell(0, new Vector2I(x, y), 0, terrainTextures[h.terrainType]);				
+				baseLayer.SetCell(new Vector2I(x, y), 0, terrainTextures[h.terrainType]);				
 			}
 		}
 
@@ -668,4 +688,10 @@ public partial class HexTileMap : TileMap
 
 		return true;
 	}
+
+	public Vector2 MapToLocal(Vector2I coords)
+	{
+		return baseLayer.MapToLocal(coords);
+	}
+
 }
