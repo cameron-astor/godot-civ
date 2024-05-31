@@ -1,6 +1,4 @@
-using Godot;
-using System;
-using System.Collections.Generic;
+using System.Linq;
 
 public partial class Settler : Unit
 {
@@ -30,21 +28,12 @@ public partial class Settler : Unit
 
         public void FoundCity()
         {
-                if ( map.GetHex(this.coords).ownerCity is null ) // Make sure the tile is not currently owned
+                if ( map.GetHex(this.coords).ownerCity is null && !City.invalidTiles.ContainsKey(map.GetHex(this.coords))) // Make sure the tile is not currently owned
                 {
                         bool valid = true;
                         foreach ( Hex h in map.GetSurroundingHexes(this.coords) ) // Make sure surrounding tiles are not currently owned
                         {
-                                valid = h.ownerCity is null;
-
-                                foreach (Civilization civ in map.civs) // Ensure no other civ has this tile in their border tile pool already
-                                {
-                                        foreach (City city in civ.cities)
-                                        {
-                                                if (city.borderTilePool.Contains(h))
-                                                        valid = false;
-                                        }
-                                }
+                                valid = h.ownerCity is null && !City.invalidTiles.ContainsKey(h);
                         }
 
                         if ( valid )

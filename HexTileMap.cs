@@ -222,6 +222,7 @@ public partial class HexTileMap : Node2D
 						highlightLayer.ResetHighlightLayer();
 						SendHexData?.Invoke(h);
 						GD.Print(h.ownerCity == null? "null" : h.ownerCity.name);
+						GD.Print($"Invalid: {City.invalidTiles.ContainsKey(h)}");
 					}
 
 
@@ -279,14 +280,14 @@ public partial class HexTileMap : Node2D
 	{
 		// Step 1: We divide the map width-wise into equal strips, one for
 		// each civilization we are generating.
-		Dictionary<int, List<Vector2I>> sectors = new Dictionary<int, List<Vector2I>>();
+		// Dictionary<int, List<Vector2I>> sectors = new Dictionary<int, List<Vector2I>>();
 
-		for (int i = 0; i < numLocations; i++)
-		{
-			sectors[i] = new List<Vector2I>();
-		}
+		// for (int i = 0; i < numLocations; i++)
+		// {
+		// 	sectors[i] = new List<Vector2I>();
+		// }
 
-		int sectorSize = width / numLocations;
+		// int sectorSize = width / numLocations;
 
 
 		List<Vector2I> locations = new List<Vector2I>();
@@ -303,17 +304,17 @@ public partial class HexTileMap : Node2D
 				{
 					plainsTiles.Add(new Vector2I(x, y));
 
-					if (sectors.ContainsKey(x/sectorSize))
-						sectors[x / sectorSize].Add(new Vector2I(x, y)); // Add plains tile to its sector
+					// if (sectors.ContainsKey(x/sectorSize))
+					// 	sectors[x / sectorSize].Add(new Vector2I(x, y)); // Add plains tile to its sector
 				}
 
 			}
 		}
 
-		foreach (int sector in sectors.Keys)
-		{
-			GD.Print($"Sector {sector}: {sectors[sector].Count} plains tiles");
-		}
+		// foreach (int sector in sectors.Keys)
+		// {
+		// 	GD.Print($"Sector {sector}: {sectors[sector].Count} plains tiles");
+		// }
 
 		Random r = new Random();
 		for (int i = 0; i < numLocations; i++)

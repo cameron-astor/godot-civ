@@ -188,20 +188,6 @@ public partial class City : Node2D
 		return true;
 	}
 
-	// public bool OtherCivHasHexInBorderPool(Hex h)
-	// {
-	// 	foreach (Civilization civ in map.civs) // Ensure no other civ has this tile in their border tile pool already
-	// 	{
-	// 		foreach (City city in civ.cities)
-	// 		{
-	// 			if (city.borderTilePool.Contains(h))
-	// 				return true;
-	// 		}
-	// 	}
-
-	// 	return false;
-	// }
-
 	public void CleanUpBorderPool()
 	{
 		// Clean up border pool of invalid tiles
