@@ -161,19 +161,10 @@ public partial class Unit : Node2D
 			// City conquest
 			if (h.isCityCenter && h.ownerCity.civ != this.civ)
 			{
-				// Transfer city ownership
-				// h.ownerCiv.cities.Remove(h.ownerCity);
-				// this.civ.cities.Add(h.ownerCity);
-
-				// Civilization formerOwner = h.ownerCiv;
-				// h.ownerCity.civ = this.civ;
-
-				// map.UpdateCivTerritoryMap(this.civ);
-				// map.UpdateCivTerritoryMap(formerOwner);
 				h.ownerCity.ChangeOwnership(this.civ);
 			}
 
-		// Target hex must be occupied.
+		// Target hex is occupied.
 		// If it is occupied by a friendly unit, this unit is blocked and nothing happens.
 		// If it is occupied by an enemy unit, initiate combat.
 		} else { 
@@ -190,7 +181,6 @@ public partial class Unit : Node2D
 
 	public void CalculateCombat(Unit attacker, Unit defender)
 	{
-		GD.Print("Combat initiated!");
 
 		defender.hp -= attacker.attackVal;
 		attacker.attackVal -= defender.attackVal/2;

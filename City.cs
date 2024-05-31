@@ -12,18 +12,23 @@ using System.Linq;
 public partial class City : Node2D
 {
 
+	// Keep a registry, shared by all city instances, of what tiles are "taken" already.
+	// This includes already existing city centers, territory, and border tiles.
+	public static Dictionary<Hex, City> invalidTiles = new Dictionary<Hex, City>();
+
+
 	public HexTileMap map; // Reference to the main map
 
 	public Vector2I centerCoordinates; // Coordinates in grid hexes of the city center
 	public Civilization civ; // The civ this city belongs to
 	public List<Hex> territory; // The territory this city controls on the map (hex coordinates)
 
-	public List<Hex> borderTilePool; // Potential tiles for expansion. Cached for efficiency.
+	public List<Hex> borderTilePool; // Potential tiles for this city's population expansion. Cached for efficiency.
 
 	
 
 	// Gameplay constants
-	public int POPULATION_THRESHOLD_INCREASE = 10; // amount to increase the threshold each time population grows.
+	public static int POPULATION_THRESHOLD_INCREASE = 15; // amount to increase the threshold each time population grows.
 
 	// City attributes
 	public string name; // Name of city to be displayed on the label
@@ -70,12 +75,9 @@ public partial class City : Node2D
 
 		unitBuildTracker = 0;
 
-	}
+		// Add city center to global invalid tiles
+		invalidTiles[(map.GetHex(centerCoordinates))] = this;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		// ProcessTurn();
 	}
 
 	public void AddTerritory(List<Hex> territoryToAdd)
@@ -83,7 +85,6 @@ public partial class City : Node2D
 		foreach (Hex h in territoryToAdd) // Set ownership of hex
 		{
 			h.ownerCity = this;
-			// h.ownerCiv = this.civ;
 
 			// Add new border hexes to border tile pool
 			AddValidNeighborsToBorderPool(h);
@@ -92,6 +93,12 @@ public partial class City : Node2D
 
 		territory.AddRange(territoryToAdd);
 		CalculateTerritoryResourceTotals();
+
+		// Update global invalid tiles
+		foreach (Hex h in territoryToAdd)
+		{
+			invalidTiles[h] = this;
+		}
 	}
 
 	public void SetCityName(string newName)
@@ -122,6 +129,8 @@ public partial class City : Node2D
 	// Includes population growth, building/spawning units, etc.
 	public void ProcessTurn()
 	{
+		CleanUpBorderPool();
+
 		// Population and food
 		populationGrowthTracker += totalFood;
 		if (populationGrowthTracker > populationGrowthThreshold) // If the growth threshold is crossed, increase population
@@ -151,8 +160,6 @@ public partial class City : Node2D
 			int index = r.Next(borderTilePool.Count);
 			this.AddTerritory( new List<Hex>{borderTilePool[index]} );
 			borderTilePool.RemoveAt(index);
-		} else {
-			// GD.Print("No possible tiles to add. " + this.name);
 		}
 	}
 
@@ -172,7 +179,45 @@ public partial class City : Node2D
 		if ( !map.HexInBounds(n.coordinate) ) // Check that hex is in map bounds
 			return false;
 
+		// if (OtherCivHasHexInBorderPool(n))
+		// 	return false;
+
+		if ( invalidTiles.ContainsKey(n) && invalidTiles[n] != this ) // If another civ claims this tile
+			return false;
+
 		return true;
+	}
+
+	// public bool OtherCivHasHexInBorderPool(Hex h)
+	// {
+	// 	foreach (Civilization civ in map.civs) // Ensure no other civ has this tile in their border tile pool already
+	// 	{
+	// 		foreach (City city in civ.cities)
+	// 		{
+	// 			if (city.borderTilePool.Contains(h))
+	// 				return true;
+	// 		}
+	// 	}
+
+	// 	return false;
+	// }
+
+	public void CleanUpBorderPool()
+	{
+		// Clean up border pool of invalid tiles
+		List<Hex> toRemove = new List<Hex>();
+		foreach (Hex b in borderTilePool)
+		{
+			if ( invalidTiles.ContainsKey(b) && invalidTiles[b] != this )
+			{
+				toRemove.Add(b);
+			}
+		}
+
+		foreach (Hex b in toRemove)
+		{
+			borderTilePool.Remove(b);
+		}
 	}
 
 	public void AddValidNeighborsToBorderPool(Hex h)
@@ -187,6 +232,9 @@ public partial class City : Node2D
 		foreach (Hex n in neighbors)
 		{
 			if (IsValidNeighborTile(n)) { borderTilePool.Add(n); } // If after all the checks the hex is still valid, add to pool.
+
+			// Update global invalid tiles with new claims
+			invalidTiles[n] = this;
 		}		
 	}
 
@@ -242,9 +290,6 @@ public partial class City : Node2D
 	{
 		if (this.civ.maxUnits > this.civ.units.Count) // If not over unit max
 			unitBuildQueue.Add(u);
-		else {
-			GD.Print("max units reached!");
-		}
 	}
 
 	public void ChangeOwnership(Civilization newOwner)
@@ -254,10 +299,23 @@ public partial class City : Node2D
 		this.civ.cities.Remove(this); // Remove this city from current owner
 		newOwner.cities.Add(this); // Add city to new owner
 
+		this.civ = newOwner;
+
 		SetIconColor(newOwner.territoryColor);
 
 		map.UpdateCivTerritoryMap(newOwner);
 		map.UpdateCivTerritoryMap(oldOwner);
+
+	}
+
+	public List<Hex> GetTerritory()
+	{
+		return this.territory;
+	}
+
+	public List<Hex> GetBorderTilePool()
+	{
+		return this.borderTilePool;
 	}
 
 }

@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://b4yav2ulwuktq"]
+[gd_scene load_steps=18 format=3 uid="uid://b4yav2ulwuktq"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_bdkcw"]
 [ext_resource type="Script" path="res://HexTileMap.cs" id="2_sjnpj"]
 [ext_resource type="Script" path="res://Camera.cs" id="3_cpe2n"]
+[ext_resource type="Script" path="res://HighlightLayer.cs" id="4_d63dg"]
 [ext_resource type="Texture2D" uid="uid://dpuqqa2qg3h1m" path="res://textures/hex_128.png" id="4_y10vo"]
 [ext_resource type="Texture2D" uid="uid://ddn2lw3aadr1r" path="res://textures/hex_overlays.png" id="5_4sd0p"]
 [ext_resource type="PackedScene" uid="uid://dfx5j0pxcdo7w" path="res://UIManager.tscn" id="5_ssi0e"]
@@ -41,6 +42,23 @@ tile_shape = 3
 tile_size = Vector2i(128, 128)
 sources/0 = SubResource("TileSetAtlasSource_q38fx")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y7d1r"]
+texture = ExtResource("4_y10vo")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_88r1y"]
+tile_shape = 3
+tile_size = Vector2i(128, 128)
+sources/0 = SubResource("TileSetAtlasSource_y7d1r")
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mjesu"]
 texture = ExtResource("5_4sd0p")
 texture_region_size = Vector2i(128, 128)
@@ -75,6 +93,12 @@ tile_set = SubResource("TileSet_00bp7")
 [node name="CivColorsLayer" type="TileMapLayer" parent="HexTileMap"]
 modulate = Color(1, 1, 1, 0.588235)
 tile_set = SubResource("TileSet_xokr8")
+
+[node name="HighlightLayer" type="TileMapLayer" parent="HexTileMap"]
+modulate = Color(0.1, 0.1, 0.1, 0.686275)
+z_index = 1
+tile_set = SubResource("TileSet_88r1y")
+script = ExtResource("4_d63dg")
 
 [node name="HexBordersLayer" type="TileMapLayer" parent="HexTileMap"]
 modulate = Color(1, 1, 1, 0.117647)

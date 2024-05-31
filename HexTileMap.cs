@@ -29,7 +29,8 @@ public partial class HexTileMap : Node2D
 {
 
 	// TileMapLayers
-	TileMapLayer baseLayer, borderLayer, overlayLayer, civColorsLayer; 
+	TileMapLayer baseLayer, borderLayer, overlayLayer, civColorsLayer;
+	HighlightLayer highlightLayer;
 
 
 	// PackedScenes
@@ -86,8 +87,8 @@ public partial class HexTileMap : Node2D
 	float TERRAIN_LACUNARITY = 2.25f;
 
 	// GAMEPLAY DATA
-	List<Civilization> civs;
-	Dictionary<Vector2I, City> cities;
+	public List<Civilization> civs;
+	public Dictionary<Vector2I, City> cities;
 
 	Unit currentSelectedUnit;
 	
@@ -103,6 +104,7 @@ public partial class HexTileMap : Node2D
 		borderLayer = GetNode<TileMapLayer>("HexBordersLayer");
 		overlayLayer = GetNode<TileMapLayer>("SelectionOverlayLayer");
 		civColorsLayer = GetNode<TileMapLayer>("CivColorsLayer");
+		highlightLayer = GetNode<TileMapLayer>("HighlightLayer") as HighlightLayer;
 		
 
 		// Get the tile atlas of base color icons.
@@ -139,16 +141,23 @@ public partial class HexTileMap : Node2D
 		civs = new List<Civilization>();
 		cities = new Dictionary<Vector2I, City>();
 
-		Civilization playerCiv = CreatePlayerCiv();
+		// Generate starting locations for all civs including player
+		List<Vector2I> starts = GenerateCivStartingLocations(NUM_AI_CIVS + 1);
+
+		// Generate player civ
+		Civilization playerCiv = CreatePlayerCiv(starts[0]);
+		starts.RemoveAt(0); // Remove player start
 
 		// Go through the same process for all AI civs.
-		GenerateAICivs();
+		GenerateAICivs(starts);
 
 		// UI signals setup
 		UIManager uimanager = GetNode<UIManager>("/root/Game/CanvasLayer/UiManager");
 		uimanager.EndTurn += ProcessTurn;
 		this.SendHexData += uimanager.SetTerrainUI;
 
+		// Map modes setup
+		highlightLayer.SetupHighlightLayer(width, height);
 	}
 
 	public void CenterCameraOnPlayer()
@@ -160,7 +169,7 @@ public partial class HexTileMap : Node2D
 		}
 	}
 
-	public Civilization CreatePlayerCiv()
+	public Civilization CreatePlayerCiv(Vector2I start)
 	{
 		// Create player civilization and starting city
 		Civilization playerCiv = new Civilization();
@@ -182,10 +191,12 @@ public partial class HexTileMap : Node2D
 		civs.Add(playerCiv);
 		
 		// Create player city
-		CreateCity(playerCiv, GenerateCivStartingLocations(1)[0], "Player City");
+		CreateCity(playerCiv, start, "Player City");
 
 		return playerCiv;
 	}
+
+
 
 	Vector2I currentSelectedCell = new Vector2I(-1, -1); // Representation of non-selected cell
 
@@ -199,17 +210,18 @@ public partial class HexTileMap : Node2D
 				Hex h = mapData[mapCoords]; // Get the clicked hex
 				if (mouse.ButtonMask == MouseButtonMask.Left)
 				{
-
 					// Send signals for UI, etc.
 					
 					// If the tile is a city
 					// TODO: check if player city
-					if (cities.ContainsKey(mapCoords))
+					if ( cities.ContainsKey(mapCoords) )
 					{
 						EmitSignal(SignalName.SendCityUIInfo, cities[mapCoords]);
-					} else { // Tile is not a city
-						// EmitSignal(SignalName.SendTerrainUIInfo, (int) h.terrainType, h.food, h.production);
+						highlightLayer.SetHighlightLayerForCity(cities[mapCoords]);
+					} else {
+						highlightLayer.ResetHighlightLayer();
 						SendHexData?.Invoke(h);
+						GD.Print(h.ownerCity == null? "null" : h.ownerCity.name);
 					}
 
 
@@ -232,6 +244,7 @@ public partial class HexTileMap : Node2D
 			} else { // Click off map occurred
 				EmitSignal(SignalName.ClickOffMap);
 				DeselectCurrentCell();
+				highlightLayer.ResetHighlightLayer();
 			}
 		} 
     }
@@ -254,16 +267,28 @@ public partial class HexTileMap : Node2D
 		{
 			c.ProcessTurn();
 		}
+
+		// Update map modes
+		highlightLayer.RefreshLayer();
 	}
 
 	// Generates valid starting locations for a given number of civilizations to be placed in
 	// at the start of the game, avoiding overlap between them.
 	// Returns the starting locations as a list of Vector2I hex coordinates.
-
-	// POTENTIAL ISSUES:
-	// - Infinite loop if no valid location is found
 	public List<Vector2I> GenerateCivStartingLocations(int numLocations)
 	{
+		// Step 1: We divide the map width-wise into equal strips, one for
+		// each civilization we are generating.
+		Dictionary<int, List<Vector2I>> sectors = new Dictionary<int, List<Vector2I>>();
+
+		for (int i = 0; i < numLocations; i++)
+		{
+			sectors[i] = new List<Vector2I>();
+		}
+
+		int sectorSize = width / numLocations;
+
+
 		List<Vector2I> locations = new List<Vector2I>();
 		List<Vector2I> plainsTiles = new List<Vector2I>();
 
@@ -275,8 +300,19 @@ public partial class HexTileMap : Node2D
 			for (int y = 0; y < height; y ++)
 			{
 				if (mapData[new Vector2I(x, y)].terrainType == TerrainType.PLAINS)
+				{
 					plainsTiles.Add(new Vector2I(x, y));
+
+					if (sectors.ContainsKey(x/sectorSize))
+						sectors[x / sectorSize].Add(new Vector2I(x, y)); // Add plains tile to its sector
+				}
+
 			}
+		}
+
+		foreach (int sector in sectors.Keys)
+		{
+			GD.Print($"Sector {sector}: {sectors[sector].Count} plains tiles");
 		}
 
 		Random r = new Random();
@@ -286,15 +322,29 @@ public partial class HexTileMap : Node2D
 			Vector2I coord = new Vector2I();  // Pick a random plains tile.
 
 			bool valid = false;
-			int counter = 0; // prevent infinite loop. For now, if after 100 attempts no suitable locations are found, accept unsuitable location.
+			int counter = 0; // prevent infinite loop. For now, if after 10000 attempts no suitable locations are found, accept unsuitable location.
 
-			while (!valid && counter < 1000)
+			while (!valid && counter < 10000)
 			{
 				coord = plainsTiles[r.Next(plainsTiles.Count)];
 				valid = IsValidLocation(coord, locations);
 				counter++;
 			}
 			
+			plainsTiles.Remove(coord);
+			foreach (Hex h in GetSurroundingHexes(coord))
+			{
+				foreach(Hex j in GetSurroundingHexes(h.coordinate))
+				{
+					foreach(Hex k in GetSurroundingHexes(j.coordinate))
+					{
+						plainsTiles.Remove(h.coordinate);
+						plainsTiles.Remove(j.coordinate);
+						plainsTiles.Remove(k.coordinate);
+					}
+				}
+			}
+
 			locations.Add(coord);
 		}
 
@@ -315,7 +365,7 @@ public partial class HexTileMap : Node2D
 
 		foreach (Vector2I l in locations) // Check cities aren't too close
 		{
-			if (Math.Abs(coord.X - l.X) < 5 || Math.Abs(coord.Y - l.Y) < 5)
+			if (Math.Abs(coord.X - l.X) < 20 || Math.Abs(coord.Y - l.Y) < 20)
 				return false;  // The city is too close to another
 		}		
 
@@ -372,9 +422,9 @@ public partial class HexTileMap : Node2D
 		return result;
 	}
 
-	public void GenerateAICivs()
+	public void GenerateAICivs(List<Vector2I> civStarts)
 	{
-		List<Vector2I> civStarts = GenerateCivStartingLocations(NUM_AI_CIVS);
+		// List<Vector2I> civStarts = GenerateCivStartingLocations(NUM_AI_CIVS);
 		
 		for (int i = 0; i < civStarts.Count; i++)
 		{
@@ -414,7 +464,6 @@ public partial class HexTileMap : Node2D
 		{
 			foreach (Hex h in c.territory)
 			{
-				// civColorsLayer.SetCell(h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 				civColorsLayer.SetCell(h.coordinate, 0, terrainTextures[TerrainType.CIV_COLOR_BASE], civ.territoryColorAltTileId);
 			}
 		}
@@ -591,6 +640,7 @@ public partial class HexTileMap : Node2D
 
 				// Set tile borders
 				borderLayer.SetCell(new Vector2I(x, y), 0, new Vector2I(0, 0));
+
 			}
 		}
 
