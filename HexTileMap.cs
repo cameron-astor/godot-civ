@@ -135,9 +135,6 @@ public partial class HexTileMap : Node2D
 
 		
 		// CIVILIZATIONS AND CITIES GEN
-		// TODO:
-		// - Make sure civs dont overlap (via logic in the gen starts function)
-		// - Make sure civs start on a reasonably sized piece of land
 		civs = new List<Civilization>();
 		cities = new Dictionary<Vector2I, City>();
 
@@ -175,7 +172,6 @@ public partial class HexTileMap : Node2D
 		Civilization playerCiv = new Civilization();
 		playerCiv.id = 0;
 		playerCiv.playerCiv = true;
-		// playerCiv.SetRandomColor();
 		playerCiv.territoryColor = new Color(PLAYER_COLOR);
 
 		// Create alt tiles for each civ's territory color.
